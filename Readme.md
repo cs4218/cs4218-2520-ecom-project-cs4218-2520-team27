@@ -33,7 +33,18 @@ Virtual Vault is a full-stack MERN (MongoDB, Express.js, React.js, Node.js) e-co
      npm -v
      ```
 
-### 2. MongoDB Setup
+### 2. MongoDB Setup (local) - unofficial
+
+1. **Install Docker Desktop**
+   - Visit [Docker Website](https://www.docker.com/get-started/) and download and install the Docker Desktop Application
+2. **Start Containers**
+   - Go into the Repository and open a Terminal, write ```docker compose up --build``` and it will download the containers and execute them, the collections will be created automatically and the data inserted.
+3. **Webinterface**
+   - go to localhost:8081 and enter as the user mongoexpressuser, and as the password mongoexpresspass
+4. **stopping and starting the Containers**
+   - you can stop then when you are done with docker compose down and start them the next time with docker compose up -d
+
+### 2. MongoDB Setup (Cloud)
 
 1. **Download and Install MongoDB Compass**:
 
