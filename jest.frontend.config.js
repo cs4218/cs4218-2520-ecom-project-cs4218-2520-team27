@@ -30,10 +30,10 @@ export default {
   // jest code coverage
   collectCoverage: true,
   collectCoverageFrom: [
-    "<rootDir>/client/src/components/**",
-    "<rootDir>/client/src/context/**",
-    "<rootDir>/client/src/hooks/**",
-    "<rootDir>/client/src/pages/**"
+    "client/src/components/**",
+    "client/src/context/**",
+    "client/src/hooks/**",
+    "client/src/pages/**"
   ],
   coverageThreshold: {
     global: {
