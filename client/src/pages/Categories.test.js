@@ -1,7 +1,6 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
-import "@testing-library/jest-dom";
 import Categories from "./Categories";
 import useCategory from "../hooks/useCategory";
 import testCategories from "../../../data/test.categories.json";
@@ -18,7 +17,7 @@ describe("Categories Component", () => {
     jest.clearAllMocks();
   });
 
-  test("renders categories correctly", () => {
+  it("renders categories correctly", () => {
     useCategory.mockReturnValue(testCategories);
 
     render(
@@ -37,7 +36,7 @@ describe("Categories Component", () => {
     });
   });
 
-  test("renders only valid categories when invalid fields present", () => {
+  it("renders only valid categories when invalid fields present", () => {
     const invalidCategories = [
         { _id: "", name: "cat1", slug: "slug1" },
         { _id: "id2", name: "", slug: "slug2" },
@@ -68,7 +67,7 @@ describe("Categories Component", () => {
     expect(allLinks).toHaveLength(testCategories.length);
   });
 
-  test("renders empty state when no categories are returned", () => {
+  it("renders empty state when no categories are returned", () => {
     useCategory.mockReturnValue([]);
 
     render(
