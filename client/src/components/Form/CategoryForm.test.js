@@ -53,32 +53,4 @@ describe("CategoryForm Component", () => {
 
     expect(handleSubmit).toHaveBeenCalled();
   });
-
-//   Instead of performing input validation in this (dumb) component,
-//   delegate it to the parent component CreateCategory in the handleUpdate() function.
-//   the tests here are disabled and just for reference.
-//   it("does not call handleSubmit when submitted with empty category", () => {
-//     const { handleSubmit, button } = setup("");
-
-//     fireEvent.click(button);
-
-//     expect(handleSubmit).not.toHaveBeenCalled();
-//   });
-
-//   it("does not call handleSubmit when submitted with whitespace-only category", () => {
-//     const { handleSubmit, button } = setup(" ");
-
-//     fireEvent.click(button);
-
-//     expect(handleSubmit).not.toHaveBeenCalled();
-//   });
-
-//   it("trims whitespace before submission", () => {
-//     const paddedValue = "   " + TEST_CATEGORY + "   ";
-//     const { handleSubmit, input, button } = setup(paddedValue);
-
-//     fireEvent.click(button);
-//     expect(input.value).toBe(paddedValue.trim());
-//     expect(handleSubmit).toHaveBeenCalled();
-//   });
 });

@@ -3,6 +3,8 @@ import axios from "axios";
 import useCategory from "./useCategory";
 import testCategories from "../../../data/test.categories.json";
 
+const API_GET = "/get-category";
+
 // Leong Heng Yew, A0249237X
 jest.mock("axios");
 
@@ -15,8 +17,7 @@ describe("useCategory Hook", () => {
     await waitFor(() => {
       expect(result.current).toEqual([]);
     });
-
-    expect(axios.get).toHaveBeenCalled();
+    expect(axios.get).toHaveBeenCalledWith(expect.stringContaining(API_GET));
   });
 
   it("should not throw errors when api returns invalid data", async () => {
@@ -27,8 +28,7 @@ describe("useCategory Hook", () => {
     await waitFor(() => {
       expect(result.current).toEqual([]);
     });
-
-    expect(axios.get).toHaveBeenCalled();
+    expect(axios.get).toHaveBeenCalledWith(expect.stringContaining(API_GET));
   });
 
   it("should fetch categories and update state correctly", async () => {
@@ -39,8 +39,7 @@ describe("useCategory Hook", () => {
     await waitFor(() => {
       expect(result.current).toEqual(testCategories);
     });
-
-    expect(axios.get).toHaveBeenCalled();
+    expect(axios.get).toHaveBeenCalledWith(expect.stringContaining(API_GET));
   });
 
   it("should handle api/network errors gracefully", async () => {
@@ -51,6 +50,7 @@ describe("useCategory Hook", () => {
     await waitFor(() => {
       expect(result.current).toEqual([]);
     });
+    expect(axios.get).toHaveBeenCalledWith(expect.stringContaining(API_GET));
   });
 
   it("should discard invalid categories (empty strings)", async () => {
@@ -66,6 +66,7 @@ describe("useCategory Hook", () => {
     await waitFor(() => {
       expect(result.current).toEqual(testCategories);
     });
+    expect(axios.get).toHaveBeenCalledWith(expect.stringContaining(API_GET));
   });
 
   it("should discard invalid categories (null values)", async () => {
@@ -81,6 +82,7 @@ describe("useCategory Hook", () => {
     await waitFor(() => {
       expect(result.current).toEqual(testCategories);
     });
+    expect(axios.get).toHaveBeenCalledWith(expect.stringContaining(API_GET));
   });
 
   it("should discard invalid categories (missing fields)", async () => {
@@ -96,5 +98,6 @@ describe("useCategory Hook", () => {
     await waitFor(() => {
       expect(result.current).toEqual(testCategories);
     });
+    expect(axios.get).toHaveBeenCalledWith(expect.stringContaining(API_GET));
   });
 });
