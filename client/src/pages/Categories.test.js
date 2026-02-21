@@ -36,37 +36,6 @@ describe("Categories Component", () => {
     });
   });
 
-  it("renders only valid categories when invalid fields present", () => {
-    const invalidCategories = [
-        { _id: "", name: "cat1", slug: "slug1" },
-        { _id: "id2", name: "", slug: "slug2" },
-        { _id: "id3", name: "cat3", slug: "" },
-        { _id: null, name: "cat4", slug: "slug4" },
-        { _id: "id5", name: null, slug: "slug5" },
-        { _id: "id6", name: "cat6", slug: null },
-    ];
-    useCategory.mockReturnValue(testCategories.concat(invalidCategories));
-
-    render(
-      <BrowserRouter>
-        <Categories />
-      </BrowserRouter>
-    );
-
-    testCategories.forEach(category => {
-        const categoryLink = screen.queryByRole("link", { name: category.name });
-        expect(categoryLink).toBeInTheDocument();
-        expect(categoryLink.closest("a")).toHaveAttribute(
-            "href",
-            `/category/${category.slug}`
-        );
-    });
-
-    // Verify total links count matches only the valid count
-    const allLinks = screen.getAllByRole("link");
-    expect(allLinks).toHaveLength(testCategories.length);
-  });
-
   it("renders empty state when no categories are returned", () => {
     useCategory.mockReturnValue([]);
 
@@ -77,6 +46,6 @@ describe("Categories Component", () => {
     );
 
     const links = screen.queryAllByRole("link");
-    expect(links.length).toBe(0);
+    expect(links).toHaveLength(0);
   });
 });

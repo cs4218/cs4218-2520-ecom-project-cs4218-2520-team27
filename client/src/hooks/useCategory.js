@@ -4,11 +4,20 @@ import axios from "axios";
 export default function useCategory() {
   const [categories, setCategories] = useState([]);
 
-  //get cat
   const getCategories = async () => {
     try {
-      const { data } = await axios.get("/api/v1/category/get-category");
-      setCategories(data?.category);
+      // Leong Heng Yew, A0249237X
+      const cats = (await axios.get("/api/v1/category/get-category")).data?.category;
+      setCategories(
+        // Remove invalid categories
+        cats.map(c => {
+              c._id = c._id?.trim();
+              c.slug = c.slug?.trim();
+              c.name = c.name?.trim();
+              return c;
+            })
+           .filter(c => c._id && c.slug && c.name)
+      );
     } catch (error) {
       console.log(error);
     }

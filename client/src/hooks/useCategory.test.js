@@ -52,4 +52,49 @@ describe("useCategory Hook", () => {
       expect(result.current).toEqual([]);
     });
   });
+
+  it("should discard invalid categories (empty strings)", async () => {
+    const invalidCategories = [
+      { _id: "",    name: "cat1", slug: "slug1" },
+      { _id: "id2", name: "",     slug: "slug2" },
+      { _id: "id3", name: "cat3", slug: ""      },
+    ];
+    axios.get.mockResolvedValueOnce({ data: { category: testCategories.concat(invalidCategories) } });
+
+    const { result } = renderHook(() => useCategory());
+
+    await waitFor(() => {
+      expect(result.current).toEqual(testCategories);
+    });
+  });
+
+  it("should discard invalid categories (null values)", async () => {
+    const invalidCategories = [
+      { _id: null,  name: "cat1", slug: "slug1" },
+      { _id: "id2", name: null,   slug: "slug2" },
+      { _id: "id3", name: "cat3", slug: null    },
+    ];
+    axios.get.mockResolvedValueOnce({ data: { category: testCategories.concat(invalidCategories) } });
+
+    const { result } = renderHook(() => useCategory());
+
+    await waitFor(() => {
+      expect(result.current).toEqual(testCategories);
+    });
+  });
+
+  it("should discard invalid categories (missing fields)", async () => {
+    const invalidCategories = [
+      {             name: "cat1", slug: "slug1" },
+      { _id: "id2",               slug: "slug2" },
+      { _id: "id3", name: "cat3"                },
+    ];
+    axios.get.mockResolvedValueOnce({ data: { category: testCategories.concat(invalidCategories) } });
+
+    const { result } = renderHook(() => useCategory());
+
+    await waitFor(() => {
+      expect(result.current).toEqual(testCategories);
+    });
+  });
 });
