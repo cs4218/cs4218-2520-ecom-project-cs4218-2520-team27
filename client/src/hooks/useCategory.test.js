@@ -43,7 +43,7 @@ describe("useCategory Hook", () => {
   });
 
   it("should handle api/network errors gracefully", async () => {
-    axios.get.mockRejectedValue(new Error("Unit Test"));
+    axios.get.mockRejectedValue(new Error("useCategory test"));
 
     const { result } = renderHook(() => useCategory());
 
