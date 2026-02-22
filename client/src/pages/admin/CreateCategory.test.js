@@ -133,7 +133,7 @@ describe("CreateCategory Component", () => {
   });
 
   describe("Update category", () => {
-    it("updates an existing category", async () => {
+    it("updates an existing category successfully", async () => {
       axios.put.mockResolvedValueOnce({ data: { success: true } });
 
       render(<CreateCategory />);
@@ -150,6 +150,36 @@ describe("CreateCategory Component", () => {
         { name: newCategory }
       );
       expect(toast.success).toHaveBeenCalledTimes(1);
+    });
+
+    it("should toggle edit modal when user interacts with Edit and Close buttons", async () => {
+      render(<CreateCategory />);
+      // Edit modal should be closed by default
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+
+      const editButtons = await screen.findAllByText("Edit");
+      fireEvent.click(editButtons[0]);
+      // Edit modal should be open now
+      expect(screen.queryByRole("dialog")).toBeInTheDocument();
+
+      const closeButton = screen.getByRole("button", { name: /close/i });
+      fireEvent.click(closeButton);
+      // Edit modal should be closed now
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    });
+
+    it("should close edit modal when user clicks backdrop", async () => {
+      render(<CreateCategory />);
+
+      const editButtons = await screen.findAllByText("Edit");
+      fireEvent.click(editButtons[0]);
+      // Edit modal should be open now
+      expect(screen.queryByRole("dialog")).toBeInTheDocument();
+
+      const mask = document.querySelector('.ant-modal-wrap');
+      fireEvent.click(mask);
+      // Edit modal should be closed now
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     });
 
     it("rejects category update (empty string)", async () => {
