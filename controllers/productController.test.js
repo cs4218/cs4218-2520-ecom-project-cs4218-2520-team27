@@ -130,7 +130,7 @@ describe("Braintree Controllers", () => {
         expect.objectContaining({ amount: 30, paymentMethodNonce: "fake-nonce" }),
         expect.any(Function)
       );
-      expect(orderModel).toHaveBeenCalled();
+      expect(orderModel).toHaveBeenCalledTimes(1);
       expect(res.json).toHaveBeenCalledWith({ ok: true });
     });
 

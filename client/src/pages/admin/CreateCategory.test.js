@@ -30,7 +30,7 @@ describe("CreateCategory Component", () => {
   it("fetches existing categories", async () => {
     render(<CreateCategory />);
 
-    expect(axios.get).toHaveBeenCalled();
+    expect(axios.get).toHaveBeenCalledTimes(1);
     testCategories.forEach(async (category) => {
       await waitFor(() => {
         expect(screen.getByText(category.name)).toBeInTheDocument();
@@ -68,7 +68,7 @@ describe("CreateCategory Component", () => {
         expect.stringContaining(API_CREATE),
         { name: testCategory }
       );
-      expect(toast.success).toHaveBeenCalled();
+      expect(toast.success).toHaveBeenCalledTimes(1);
     });
 
     it("handles api error when creating new category", async () => {
@@ -82,7 +82,7 @@ describe("CreateCategory Component", () => {
       });
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalled();
+        expect(toast.error).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -97,7 +97,7 @@ describe("CreateCategory Component", () => {
       });
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalled();
+        expect(toast.error).toHaveBeenCalledTimes(1);
       });
     });
   });
@@ -128,7 +128,7 @@ describe("CreateCategory Component", () => {
           expect.stringContaining(API_UPDATE),
           { name: newCategory }
         );
-        expect(toast.success).toHaveBeenCalled();
+        expect(toast.success).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -146,7 +146,7 @@ describe("CreateCategory Component", () => {
       });
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalled();
+        expect(toast.error).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -164,7 +164,7 @@ describe("CreateCategory Component", () => {
       });
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalled();
+        expect(toast.error).toHaveBeenCalledTimes(1);
       });
     });
   });
@@ -183,7 +183,7 @@ describe("CreateCategory Component", () => {
         expect(axios.delete).toHaveBeenCalledWith(
           expect.stringContaining(API_DELETE + "/" + testCategories[0]._id)
         );
-        expect(toast.success).toHaveBeenCalled();
+        expect(toast.success).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -196,7 +196,7 @@ describe("CreateCategory Component", () => {
       fireEvent.click(deleteButtons[0]);
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalled();
+        expect(toast.error).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -209,7 +209,7 @@ describe("CreateCategory Component", () => {
       fireEvent.click(deleteButtons[0]);
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalled();
+        expect(toast.error).toHaveBeenCalledTimes(1);
       });
     });
   });
