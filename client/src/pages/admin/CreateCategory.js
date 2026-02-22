@@ -14,12 +14,19 @@ const CreateCategory = () => {
   //handle Form
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const newName = name?.trim();
+    setName(newName);
+    if (!newName) {
+      toast.error("Category name cannot be empty.");
+      return;
+    }
     try {
-      const { data } = await axios.post("/api/v1/category/create-category", {
-        name,
-      });
+      const { data } = await axios.post(
+        "/api/v1/category/create-category",
+        { name: newName },
+      );
       if (data?.success) {
-        toast.success(`${name} is created`);
+        toast.success(`${newName} is created`);
         getAllCategory();
       } else {
         toast.error(data.message);
@@ -50,13 +57,19 @@ const CreateCategory = () => {
   //update category
   const handleUpdate = async (e) => {
     e.preventDefault();
+    const newUpdatedName = updatedName?.trim();
+    setUpdatedName(newUpdatedName);
+    if (!newUpdatedName) {
+      toast.error("Category name cannot be empty.");
+      return;
+    }
     try {
       const { data } = await axios.put(
         `/api/v1/category/update-category/${selected._id}`,
-        { name: updatedName }
+        { name: newUpdatedName }
       );
       if (data.success) {
-        toast.success(`${updatedName} is updated`);
+        toast.success(`${newUpdatedName} is updated`);
         setSelected(null);
         setUpdatedName("");
         setOpen(false);

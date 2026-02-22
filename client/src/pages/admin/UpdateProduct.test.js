@@ -6,6 +6,8 @@ import '@testing-library/jest-dom/extend-expect';
 import toast from 'react-hot-toast';
 import UpdateProduct from './UpdateProduct';
 
+// Lai Xue Le Shaun, A0252643H
+
 // Mock axios
 jest.mock('axios');
 jest.mock('react-hot-toast');
@@ -143,12 +145,11 @@ describe('UpdateProduct Component', () => {
 
     renderUpdateProduct();
 
-    await waitFor(() => {
-      expect(screen.getByDisplayValue('Existing Product')).toBeInTheDocument();
-      expect(screen.getByDisplayValue('This is an existing product')).toBeInTheDocument();
-      expect(screen.getByDisplayValue('79.99')).toBeInTheDocument();
-      expect(screen.getByDisplayValue('20')).toBeInTheDocument();
-    });
+    await screen.findByDisplayValue('Existing Product');
+    expect(screen.getByDisplayValue('Existing Product')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('This is an existing product')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('79.99')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('20')).toBeInTheDocument();
   });
 
   it('renders update product button', async () => {
@@ -453,14 +454,14 @@ describe('UpdateProduct Component', () => {
       return Promise.resolve({ data: { success: true, category: mockCategories } });
     });
 
-    const { container } = renderUpdateProduct();
+    renderUpdateProduct();
 
     await waitFor(() => {
       expect(screen.getByText('Upload Photo')).toBeInTheDocument();
     });
 
     const file = new File(['test'], 'new-photo.png', { type: 'image/png' });
-    const input = container.querySelector('input[type="file"]');
+    const input = screen.getByLabelText('Upload Photo');
     
     fireEvent.change(input, { target: { files: [file] } });
 
@@ -493,13 +494,13 @@ describe('UpdateProduct Component', () => {
       return Promise.resolve({ data: { success: true, category: mockCategories } });
     });
 
-    const { container } = renderUpdateProduct();
+    renderUpdateProduct();
 
-    await waitFor(() => {
-      // Category select dropdown should be rendered
-      const selects = container.querySelectorAll('.form-select');
-      expect(selects.length).toBeGreaterThan(0);
-    });
+    // Wait for form to load
+    await screen.findByDisplayValue('Existing Product');
+    // Category select dropdown should be rendered (antd Select uses combobox role)
+    const selects = screen.getAllByRole('combobox');
+    expect(selects.length).toBeGreaterThan(0);
   });
 
   it('renders shipping options in form', async () => {
@@ -510,12 +511,100 @@ describe('UpdateProduct Component', () => {
       return Promise.resolve({ data: { success: true, category: mockCategories } });
     });
 
-    const { container } = renderUpdateProduct();
+    renderUpdateProduct();
+
+    // Wait for form to be populated
+    await screen.findByDisplayValue('Existing Product');
+    // Multiple combobox elements should exist (category and shipping selects)
+    const selects = screen.getAllByRole('combobox');
+    expect(selects.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('shows error message when update product returns success true', async () => {
+    axios.get.mockImplementation((url) => {
+      if (url.includes('get-product/')) {
+        return Promise.resolve({ data: { product: mockProduct } });
+      }
+      return Promise.resolve({ data: { success: true, category: mockCategories } });
+    });
+    axios.put.mockResolvedValueOnce({ data: { success: true, message: 'Error message from server' } });
+
+    renderUpdateProduct();
+
+    await screen.findByDisplayValue('Existing Product');
+    fireEvent.click(screen.getByText('UPDATE PRODUCT'));
 
     await waitFor(() => {
-      // Multiple form-select elements should exist (category and shipping)
-      const selects = container.querySelectorAll('.form-select');
-      expect(selects.length).toBeGreaterThanOrEqual(2);
+      expect(toast.error).toHaveBeenCalledWith('Error message from server');
+    });
+  });
+
+  it('handles error when update product API throws', async () => {
+    const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+    axios.get.mockImplementation((url) => {
+      if (url.includes('get-product/')) {
+        return Promise.resolve({ data: { product: mockProduct } });
+      }
+      return Promise.resolve({ data: { success: true, category: mockCategories } });
+    });
+    axios.put.mockRejectedValueOnce(new Error('Network error'));
+
+    renderUpdateProduct();
+
+    await screen.findByDisplayValue('Existing Product');
+    fireEvent.click(screen.getByText('UPDATE PRODUCT'));
+
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith('something went wrong');
+    });
+
+    consoleSpy.mockRestore();
+  });
+
+  it('handles category selection onChange', async () => {
+    axios.get.mockImplementation((url) => {
+      if (url.includes('get-product/')) {
+        return Promise.resolve({ data: { product: mockProduct } });
+      }
+      return Promise.resolve({ data: { success: true, category: mockCategories } });
+    });
+
+    renderUpdateProduct();
+
+    await screen.findByDisplayValue('Existing Product');
+    
+    // Click to open category dropdown (first combobox)
+    const categorySelect = screen.getAllByRole('combobox')[0];
+    fireEvent.mouseDown(categorySelect);
+    
+    // Select a different category
+    await waitFor(() => {
+      const option = screen.getByText('Clothing');
+      fireEvent.click(option);
+    });
+  });
+
+  it('handles shipping selection onChange', async () => {
+    axios.get.mockImplementation((url) => {
+      if (url.includes('get-product/')) {
+        return Promise.resolve({ data: { product: mockProduct } });
+      }
+      return Promise.resolve({ data: { success: true, category: mockCategories } });
+    });
+
+    renderUpdateProduct();
+
+    await screen.findByDisplayValue('Existing Product');
+    
+    // Get shipping select (second combobox)
+    const selects = screen.getAllByRole('combobox');
+    const shippingSelect = selects[1];
+    fireEvent.mouseDown(shippingSelect);
+    
+    // Select shipping option
+    await waitFor(() => {
+      const noOption = screen.getByTitle('No');
+      fireEvent.click(noOption);
     });
   });
 });

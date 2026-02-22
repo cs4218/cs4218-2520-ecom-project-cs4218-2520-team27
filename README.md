@@ -117,14 +117,14 @@ To download and use the MERN (MongoDB, Express.js, React.js, Node.js) app from G
 
 ## 5. Unit Testing with Jest
 
-Unit testing is a crucial aspect of software development aimed at verifying the functionality of individual units or components of a software application. It involves isolating these units and subjecting them to various test scenarios to ensure their correctness.  
+Unit testing is a crucial aspect of software development aimed at verifying the functionality of individual units or components of a software application. It involves isolating these units and subjecting them to various test scenarios to ensure their correctness.
 Jest is a popular JavaScript testing framework widely used for unit testing. It offers a simple and efficient way to write and execute tests in JavaScript projects.
 
 ### Getting Started with Jest
 
 To begin unit testing with Jest in your project, follow these steps:
 
-1. **Install Jest**:  
+1. **Install Jest**:
    Use your preferred package manager to install Jest. For instance, with npm:
 
    ```bash
@@ -132,11 +132,11 @@ To begin unit testing with Jest in your project, follow these steps:
 
    ```
 
-2. **Write Tests**  
+2. **Write Tests**
    Create test files for your components or units where you define test cases to evaluate their behaviour.
 
-3. **Run Tests**  
-   Execute your tests using Jest to ensure that your components meet the expected behaviour.  
+3. **Run Tests**
+   Execute your tests using Jest to ensure that your components meet the expected behaviour.
    You can run the tests by using the following command in the root of the directory:
 
    - **Frontend tests**
@@ -155,3 +155,46 @@ To begin unit testing with Jest in your project, follow these steps:
      ```bash
      npm run test
      ```
+
+## Workload Distribution
+
+### 1. Leong Heng Yew, A0249237X
+
+### Milestone 1
+#### Payment
+- controllers/productController.js
+   1. braintreeTokenController
+   2. brainTreePaymentController
+
+#### Category
+- hooks/useCategory.js
+- pages/Categories.js
+- components/Form/CategoryForm.js
+- pages/admin/CreateCategory.js
+- controllers/categoryController.js
+   1. createCategoryController
+   2. updateCategoryController
+   3. categoryControlller
+   4. singleCategoryController
+   5. deleteCategoryCOntroller
+
+### 2. Lee Wen Jun
+
+### Milestone 1
+
+#### Login
+- `client/src/pages/Auth/Login.js`
+
+#### Register
+- `client/src/pages/Auth/Register.js`
+
+#### Server Files
+- `controllers/authController.js`
+  - registerController
+  - loginController
+  - forgotPasswordController
+  - testController
+
+## MS1 CI URL
+
+https://github.com/cs4218/cs4218-2520-ecom-project-cs4218-2520-team27/actions/runs/22278857260

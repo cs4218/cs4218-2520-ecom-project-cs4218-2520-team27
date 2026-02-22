@@ -6,6 +6,8 @@ import '@testing-library/jest-dom/extend-expect';
 import toast from 'react-hot-toast';
 import CreateProduct from './CreateProduct';
 
+// Lai Xue Le Shaun, A0252643H
+
 // Mock axios
 jest.mock('axios');
 jest.mock('react-hot-toast');
@@ -101,12 +103,11 @@ describe('CreateProduct Component', () => {
 
     renderCreateProduct();
 
-    await waitFor(() => {
-      expect(screen.getByPlaceholderText('write a name')).toBeInTheDocument();
-      expect(screen.getByPlaceholderText('write a description')).toBeInTheDocument();
-      expect(screen.getByPlaceholderText('write a Price')).toBeInTheDocument();
-      expect(screen.getByPlaceholderText('write a quantity')).toBeInTheDocument();
-    });
+    await screen.findByPlaceholderText('write a name');
+    expect(screen.getByPlaceholderText('write a name')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('write a description')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('write a Price')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('write a quantity')).toBeInTheDocument();
   });
 
   it('renders upload photo button', async () => {
@@ -134,11 +135,9 @@ describe('CreateProduct Component', () => {
 
     renderCreateProduct();
 
-    await waitFor(() => {
-      const nameInput = screen.getByPlaceholderText('write a name');
-      fireEvent.change(nameInput, { target: { value: 'Test Product' } });
-      expect(nameInput.value).toBe('Test Product');
-    });
+    const nameInput = await screen.findByPlaceholderText('write a name');
+    fireEvent.change(nameInput, { target: { value: 'Test Product' } });
+    expect(nameInput.value).toBe('Test Product');
   });
 
   it('allows typing in description input', async () => {
@@ -146,11 +145,9 @@ describe('CreateProduct Component', () => {
 
     renderCreateProduct();
 
-    await waitFor(() => {
-      const descInput = screen.getByPlaceholderText('write a description');
-      fireEvent.change(descInput, { target: { value: 'Test Description' } });
-      expect(descInput.value).toBe('Test Description');
-    });
+    const descInput = await screen.findByPlaceholderText('write a description');
+    fireEvent.change(descInput, { target: { value: 'Test Description' } });
+    expect(descInput.value).toBe('Test Description');
   });
 
   it('allows typing in price input', async () => {
@@ -158,11 +155,9 @@ describe('CreateProduct Component', () => {
 
     renderCreateProduct();
 
-    await waitFor(() => {
-      const priceInput = screen.getByPlaceholderText('write a Price');
-      fireEvent.change(priceInput, { target: { value: '99.99' } });
-      expect(priceInput.value).toBe('99.99');
-    });
+    const priceInput = await screen.findByPlaceholderText('write a Price');
+    fireEvent.change(priceInput, { target: { value: '99.99' } });
+    expect(priceInput.value).toBe('99.99');
   });
 
   it('allows typing in quantity input', async () => {
@@ -170,11 +165,9 @@ describe('CreateProduct Component', () => {
 
     renderCreateProduct();
 
-    await waitFor(() => {
-      const quantityInput = screen.getByPlaceholderText('write a quantity');
-      fireEvent.change(quantityInput, { target: { value: '10' } });
-      expect(quantityInput.value).toBe('10');
-    });
+    const quantityInput = await screen.findByPlaceholderText('write a quantity');
+    fireEvent.change(quantityInput, { target: { value: '10' } });
+    expect(quantityInput.value).toBe('10');
   });
 
   it('handles category fetch error', async () => {
@@ -247,41 +240,34 @@ describe('CreateProduct Component', () => {
   it('displays photo preview when photo is selected', async () => {
     axios.get.mockResolvedValueOnce({ data: { success: true, category: mockCategories } });
 
-    const { container } = renderCreateProduct();
+    renderCreateProduct();
 
-    await waitFor(() => {
-      expect(screen.getByText('Upload Photo')).toBeInTheDocument();
-    });
+    await screen.findByText('Upload Photo');
 
     const file = new File(['test'], 'test.png', { type: 'image/png' });
-    const input = container.querySelector('input[type="file"]');
+    const input = screen.getByLabelText('Upload Photo');
     
     fireEvent.change(input, { target: { files: [file] } });
 
-    await waitFor(() => {
-      const img = screen.getByAltText('product_photo');
-      expect(img).toBeInTheDocument();
-      expect(img).toHaveAttribute('src', 'mock-url');
-    });
+    const img = await screen.findByAltText('product_photo');
+    expect(img).toBeInTheDocument();
+    expect(img).toHaveAttribute('src', 'mock-url');
   });
 
   it('displays photo name when photo is selected', async () => {
     axios.get.mockResolvedValueOnce({ data: { success: true, category: mockCategories } });
 
-    const { container } = renderCreateProduct();
+    renderCreateProduct();
 
-    await waitFor(() => {
-      expect(screen.getByText('Upload Photo')).toBeInTheDocument();
-    });
+    await screen.findByText('Upload Photo');
 
     const file = new File(['test'], 'test-image.png', { type: 'image/png' });
-    const input = container.querySelector('input[type="file"]');
+    const input = screen.getByLabelText('Upload Photo');
     
     fireEvent.change(input, { target: { files: [file] } });
 
-    await waitFor(() => {
-      expect(screen.getByText('test-image.png')).toBeInTheDocument();
-    });
+    await screen.findByText('test-image.png');
+    expect(screen.getByText('test-image.png')).toBeInTheDocument();
   });
 
   it('renders AdminMenu component', async () => {
@@ -331,6 +317,74 @@ describe('CreateProduct Component', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: 'Create Product' })).toBeInTheDocument();
+    });
+  });
+
+  it('shows error message when create product returns success true', async () => {
+    axios.get.mockResolvedValueOnce({ data: { success: true, category: mockCategories } });
+    axios.post.mockResolvedValueOnce({ data: { success: true, message: 'Error message from server' } });
+
+    renderCreateProduct();
+
+    await screen.findByPlaceholderText('write a name');
+    fireEvent.click(screen.getByText('CREATE PRODUCT'));
+
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith('Error message from server');
+    });
+  });
+
+  it('handles error when create product API throws', async () => {
+    const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+    axios.get.mockResolvedValueOnce({ data: { success: true, category: mockCategories } });
+    axios.post.mockRejectedValueOnce(new Error('Network error'));
+
+    renderCreateProduct();
+
+    await screen.findByPlaceholderText('write a name');
+    fireEvent.click(screen.getByText('CREATE PRODUCT'));
+
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith('something went wrong');
+    });
+
+    consoleSpy.mockRestore();
+  });
+
+  it('handles category selection onChange', async () => {
+    axios.get.mockResolvedValueOnce({ data: { success: true, category: mockCategories } });
+
+    renderCreateProduct();
+
+    await screen.findByText('Select a category');
+    
+    // Click to open dropdown
+    const categorySelect = screen.getAllByRole('combobox')[0];
+    fireEvent.mouseDown(categorySelect);
+    
+    // Select an option
+    await waitFor(() => {
+      const option = screen.getByText('Electronics');
+      fireEvent.click(option);
+    });
+  });
+
+  it('handles shipping selection onChange', async () => {
+    axios.get.mockResolvedValueOnce({ data: { success: true, category: mockCategories } });
+
+    renderCreateProduct();
+
+    await screen.findByText('Select Shipping');
+    
+    // Get shipping select (second combobox)
+    const selects = screen.getAllByRole('combobox');
+    const shippingSelect = selects[1];
+    fireEvent.mouseDown(shippingSelect);
+    
+    // Select shipping option
+    await waitFor(() => {
+      const yesOption = screen.getByTitle('Yes');
+      fireEvent.click(yesOption);
     });
   });
 });

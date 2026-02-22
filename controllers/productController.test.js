@@ -1,4 +1,10 @@
+import braintree from "braintree";
+import fs from "fs";
+import slugify from "slugify";
+
 import {
+  braintreeTokenController,
+  brainTreePaymentController,
   createProductController,
   updateProductController,
   deleteProductController,
@@ -6,27 +12,163 @@ import {
   getSingleProductController,
   searchProductController,
 } from "./productController.js";
+import orderModel from "../models/orderModel.js";
 import productModel from "../models/productModel.js";
-import fs from "fs";
-import slugify from "slugify";
+
+// Lai Xue Le Shaun, A0252643H
 
 // Mock dependencies
 jest.mock("../models/productModel.js");
+jest.mock("../models/categoryModel.js");
 jest.mock("fs");
 jest.mock("slugify");
-jest.mock("braintree", () => ({
-  BraintreeGateway: jest.fn().mockImplementation(() => ({
+
+// Leong Heng Yew, A0249237X
+jest.mock("braintree", () => {
+  const mockGatewayInstance = {
     clientToken: {
       generate: jest.fn(),
     },
     transaction: {
       sale: jest.fn(),
     },
-  })),
-  Environment: {
-    Sandbox: "sandbox",
-  },
-}));
+  };
+  return {
+    BraintreeGateway: jest.fn(() => mockGatewayInstance),
+    Environment: { Sandbox: "sandbox" },
+  };
+});
+jest.mock("../models/orderModel.js", () => {
+  return jest.fn().mockImplementation(() => ({
+    save: jest.fn().mockResolvedValue(true),
+  }));
+});
+
+// Leong Heng Yew, A0249237X
+describe("Braintree Controllers", () => {
+  const mockGateway = new braintree.BraintreeGateway;
+  const req = {
+    body: {},
+    user: { _id: "user123" },
+  };
+  const res = {
+    status: jest.fn().mockReturnThis(),
+    send: jest.fn(),
+    json: jest.fn(),
+  };
+
+  expect.extend({
+    toHaveBeenCalledWith5xxServerError(received) {
+      const lastCall = received.mock.calls.at(-1);
+      const statusCode = lastCall ? lastCall[0] : null;
+      const pass = statusCode >= 500 && statusCode < 600;
+
+      if (pass) {
+        return {
+          message: () => `expected ${statusCode} not to be a 5xx server error`,
+          pass: true,
+        };
+      } else {
+        return {
+          message: () => `expected ${statusCode} to be a 5xx server error`,
+          pass: false,
+        };
+      }
+    },
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe("braintreeTokenController", () => {
+    it("should generate a client token successfully", async () => {
+      const mockResponse = { clientToken: "fake-token" };
+      mockGateway.clientToken.generate.mockImplementation((opts, callback) => {
+        callback(null, mockResponse);
+      });
+
+      await braintreeTokenController(req, res);
+
+      expect(res.send).toHaveBeenCalledWith(mockResponse);
+    });
+
+    it("should return 500 if token generation fails", async () => {
+      const mockError = new Error("Braintree token generation failed");
+      mockGateway.clientToken.generate.mockImplementation((opts, callback) => {
+        callback(mockError, null);
+      });
+
+      await braintreeTokenController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith5xxServerError();
+      expect(res.send).toHaveBeenCalledWith(mockError);
+    });
+
+    it("should return 500 if network error", async () => {
+      const mockError = new Error("Network error while generating braintree token");
+      mockGateway.clientToken.generate.mockImplementation(() => {
+        throw mockError;
+      });
+
+      await braintreeTokenController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith5xxServerError();
+      expect(res.send).toHaveBeenCalledWith(mockError);
+    });
+  });
+
+  describe("brainTreePaymentController", () => {
+    it("should process payment and create order successfully", async () => {
+      req.body = {
+        nonce: "fake-nonce",
+        cart: [{ price: 10 }, { price: 20 }],
+      };
+      const mockResult = { success: true, transaction: { id: "tx123" } };
+      mockGateway.transaction.sale.mockImplementation((opts, callback) => {
+        callback(null, mockResult);
+      });
+
+      await brainTreePaymentController(req, res);
+
+      expect(mockGateway.transaction.sale).toHaveBeenCalledWith(
+        expect.objectContaining({ amount: 30, paymentMethodNonce: "fake-nonce" }),
+        expect.any(Function)
+      );
+      expect(orderModel).toHaveBeenCalledTimes(1);
+      expect(res.json).toHaveBeenCalledWith({ ok: true });
+    });
+
+    it("should return 500 if transaction fails", async () => {
+      req.body = { nonce: "fake-nonce", cart: [] };
+      const mockError = { message: "Payment failed" };
+
+      mockGateway.transaction.sale.mockImplementation((opts, callback) => {
+        callback(mockError, null);
+      });
+
+      await brainTreePaymentController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith5xxServerError();
+      expect(res.send).toHaveBeenCalledWith(mockError);
+    });
+
+    it("should return 500 if network error", async () => {
+      req.body = { nonce: "fake-nonce", cart: [] };
+      const mockError = { message: "Payment network error" };
+
+      mockGateway.transaction.sale.mockImplementation((opts, callback) => {
+        throw mockError;
+      });
+
+      await brainTreePaymentController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith5xxServerError();
+      expect(res.send).toHaveBeenCalledWith(mockError);
+    });
+  });
+});
+
 
 describe("Product Controller - Create, Update, Delete", () => {
   let mockReq;

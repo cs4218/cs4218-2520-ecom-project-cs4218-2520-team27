@@ -42,7 +42,7 @@ describe("CategoryForm Component", () => {
     const newValue = "newCategory";
     fireEvent.change(input, { target: { value: newValue } });
 
-    expect(setValue).toHaveBeenCalled();
+    expect(setValue).toHaveBeenCalledTimes(1);
     expect(setValue).toHaveBeenCalledWith(newValue);
   });
 
@@ -51,6 +51,6 @@ describe("CategoryForm Component", () => {
 
     fireEvent.click(button);
 
-    expect(handleSubmit).toHaveBeenCalled();
+    expect(handleSubmit).toHaveBeenCalledTimes(1);
   });
 });
