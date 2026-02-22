@@ -2,6 +2,9 @@ import {
   createProductController,
   updateProductController,
   deleteProductController,
+  getProductController,
+  getSingleProductController,
+  searchProductController,
 } from "./productController.js";
 import productModel from "../models/productModel.js";
 import fs from "fs";
@@ -9,8 +12,6 @@ import slugify from "slugify";
 
 // Mock dependencies
 jest.mock("../models/productModel.js");
-jest.mock("../models/categoryModel.js");
-jest.mock("../models/orderModel.js");
 jest.mock("fs");
 jest.mock("slugify");
 jest.mock("braintree", () => ({
@@ -522,6 +523,180 @@ describe("Product Controller - Create, Update, Delete", () => {
         success: true,
         message: "Product Deleted successfully",
       });
+    });
+  });
+
+  describe("getProductController", () => {
+    it("should fetch all products successfully", async () => {
+      // Arrange
+      const mockProducts = [
+        { _id: "1", name: "Product 1", price: 99.99 },
+        { _id: "2", name: "Product 2", price: 149.99 },
+      ];
+
+      productModel.find = jest.fn().mockReturnValue({
+        populate: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        sort: jest.fn().mockResolvedValue(mockProducts),
+      });
+
+      // Act
+      await getProductController(mockReq, mockRes);
+
+      // Assert
+      expect(productModel.find).toHaveBeenCalledWith({});
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.send).toHaveBeenCalledWith({
+        success: true,
+        counTotal: 2,
+        message: "ALlProducts ",
+        products: mockProducts,
+      });
+    });
+
+    it("should handle errors gracefully", async () => {
+      // Arrange
+      const mockError = new Error("Database error");
+      const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+
+      productModel.find = jest.fn().mockReturnValue({
+        populate: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        sort: jest.fn().mockRejectedValue(mockError),
+      });
+
+      // Act
+      await getProductController(mockReq, mockRes);
+
+      // Assert
+      expect(mockRes.status).toHaveBeenCalledWith(500);
+      expect(mockRes.send).toHaveBeenCalledWith({
+        success: false,
+        message: "Erorr in getting products",
+        error: mockError.message,
+      });
+
+      consoleSpy.mockRestore();
+    });
+  });
+
+  describe("getSingleProductController", () => {
+    it("should fetch single product by slug successfully", async () => {
+      // Arrange
+      mockReq.params = { slug: "test-product" };
+      const mockProduct = {
+        _id: "1",
+        name: "Test Product",
+        slug: "test-product",
+        price: 99.99,
+      };
+
+      productModel.findOne = jest.fn().mockReturnValue({
+        select: jest.fn().mockReturnThis(),
+        populate: jest.fn().mockResolvedValue(mockProduct),
+      });
+
+      // Act
+      await getSingleProductController(mockReq, mockRes);
+
+      // Assert
+      expect(productModel.findOne).toHaveBeenCalledWith({ slug: "test-product" });
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.send).toHaveBeenCalledWith({
+        success: true,
+        message: "Single Product Fetched",
+        product: mockProduct,
+      });
+    });
+
+    it("should handle product not found", async () => {
+      // Arrange
+      mockReq.params = { slug: "nonexistent" };
+      const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+
+      productModel.findOne = jest.fn().mockReturnValue({
+        select: jest.fn().mockReturnThis(),
+        populate: jest.fn().mockResolvedValue(null),
+      });
+
+      // Act
+      await getSingleProductController(mockReq, mockRes);
+
+      // Assert
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.send).toHaveBeenCalledWith({
+        success: true,
+        message: "Single Product Fetched",
+        product: null,
+      });
+
+      consoleSpy.mockRestore();
+    });
+  });
+
+  describe("searchProductController", () => {
+    it("should search products by keyword in name", async () => {
+      // Arrange
+      mockReq.params = { keyword: "laptop" };
+      const mockProducts = [
+        { _id: "1", name: "Gaming Laptop", price: 1200 },
+      ];
+
+      productModel.find = jest.fn().mockReturnValue({
+        select: jest.fn().mockResolvedValue(mockProducts),
+      });
+
+      // Act
+      await searchProductController(mockReq, mockRes);
+
+      // Assert
+      expect(productModel.find).toHaveBeenCalled();
+      const callArgs = productModel.find.mock.calls[0][0];
+      expect(callArgs.$or).toBeDefined();
+      expect(mockRes.json).toHaveBeenCalledWith(mockProducts);
+    });
+
+    it("should use case-insensitive search", async () => {
+      // Arrange
+      mockReq.params = { keyword: "LAPTOP" };
+
+      productModel.find = jest.fn().mockReturnValue({
+        select: jest.fn().mockResolvedValue([]),
+      });
+
+      // Act
+      await searchProductController(mockReq, mockRes);
+
+      // Assert
+      const callArgs = productModel.find.mock.calls[0][0];
+      expect(callArgs.$or[0].name.$options).toBe("i");
+      expect(callArgs.$or[1].description.$options).toBe("i");
+    });
+
+    it("should handle search error", async () => {
+      // Arrange
+      mockReq.params = { keyword: "test" };
+      const mockError = new Error("Database error");
+      const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+
+      productModel.find = jest.fn().mockReturnValue({
+        select: jest.fn().mockRejectedValue(mockError),
+      });
+
+      // Act
+      await searchProductController(mockReq, mockRes);
+
+      // Assert
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.send).toHaveBeenCalledWith({
+        success: false,
+        message: "Error In Search Product API",
+        error: mockError,
+      });
+
+      consoleSpy.mockRestore();
     });
   });
 });
