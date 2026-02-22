@@ -25,7 +25,6 @@ export default {
     "<rootDir>/client/src/context/**/*.test.js",
     "<rootDir>/client/src/hooks/**/*.test.js",
     "<rootDir>/client/src/pages/**/*.test.js",
-    "<rootDir>/client/src/pages/admin/**/*.test.js"
   ],
 
   // jest code coverage
@@ -35,7 +34,6 @@ export default {
     "client/src/context/**",
     "client/src/hooks/**",
     "client/src/pages/**",
-    "client/src/pages/admin/**"
 
   ],
   coverageThreshold: {

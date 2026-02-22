@@ -40,8 +40,8 @@ describe("authController", () => {
     // Test using equivalence partitioning: one representative case for missing required fields
     it("returns error when name is missing", async () => {
       // Arrange
-      const req = { 
-        body: { email: "a@b.com", password: "pass", phone: "1", address: "a", answer: "x" } 
+      const req = {
+        body: { email: "a@b.com", password: "pass", phone: "1", address: "a", answer: "x" }
       };
       const response = createResponse();
 
@@ -54,8 +54,8 @@ describe("authController", () => {
 
     it("returns error when email is missing", async () => {
       // Arrange
-      const req = { 
-        body: { name: "A", password: "pass", phone: "1", address: "a", answer: "x" } 
+      const req = {
+        body: { name: "A", password: "pass", phone: "1", address: "a", answer: "x" }
       };
       const response = createResponse();
 
@@ -68,8 +68,8 @@ describe("authController", () => {
 
     it("returns error when password is missing", async () => {
       // Arrange
-      const req = { 
-        body: { name: "A", email: "a@b.com", phone: "1", address: "a", answer: "x" } 
+      const req = {
+        body: { name: "A", email: "a@b.com", phone: "1", address: "a", answer: "x" }
       };
       const response = createResponse();
 
@@ -82,8 +82,8 @@ describe("authController", () => {
 
     it("returns error when phone is missing", async () => {
       // Arrange
-      const req = { 
-        body: { name: "A", email: "a@b.com", password: "pass", address: "a", answer: "x" } 
+      const req = {
+        body: { name: "A", email: "a@b.com", password: "pass", address: "a", answer: "x" }
       };
       const response = createResponse();
 
@@ -96,8 +96,8 @@ describe("authController", () => {
 
     it("returns error when address is missing", async () => {
       // Arrange
-      const req = { 
-        body: { name: "A", email: "a@b.com", password: "pass", phone: "1", answer: "x" } 
+      const req = {
+        body: { name: "A", email: "a@b.com", password: "pass", phone: "1", answer: "x" }
       };
       const response = createResponse();
 
@@ -110,8 +110,8 @@ describe("authController", () => {
 
     it("returns error when answer is missing", async () => {
       // Arrange
-      const req = { 
-        body: { name: "A", email: "a@b.com", password: "pass", phone: "1", address: "a" } 
+      const req = {
+        body: { name: "A", email: "a@b.com", password: "pass", phone: "1", address: "a" }
       };
       const response = createResponse();
 
@@ -572,7 +572,7 @@ describe("Auth Controller - Order Related Functions", () => {
 
       await getAllOrdersController(mockReq, mockRes);
 
-      expect(mockSort).toHaveBeenCalledWith({ createdAt: "-1" });
+      expect(mockSort).toHaveBeenCalledWith({ createdAt: -1 });
     });
 
     it("should handle errors and return 500 status", async () => {
