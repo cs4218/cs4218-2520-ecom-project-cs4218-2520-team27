@@ -7,6 +7,8 @@ import productModel from "../models/productModel.js";
 import fs from "fs";
 import slugify from "slugify";
 
+// Lai Xue Le Shaun, A0252643H
+
 // Mock dependencies
 jest.mock("../models/productModel.js");
 jest.mock("../models/categoryModel.js");
