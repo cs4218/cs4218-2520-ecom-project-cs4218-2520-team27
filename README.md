@@ -195,6 +195,35 @@ To begin unit testing with Jest in your project, follow these steps:
   - forgotPasswordController
   - testController
 
+### 3. Lai Xue Le Shaun, A0252643H
+
+### Milestone 1
+#### Product
+- controllers/productController.js
+  1. createProductController
+  2. updateProductController
+  3. deleteProductController
+  4. getProductController
+  5. getSingleProductController
+  6. searchProductController
+- pages/admin/Products.js
+- pages/admin/CreateProduct.js
+- pages/admin/UpdateProduct.js
+
+#### Order
+- controllers/authController.js
+  1. getOrdersController
+  2. getAllOrdersController
+  3. orderStatusController
+  4. updateProfileController
+- models/orderModel.js
+  1. Schema Definition
+  2. Model Name
+  3. Schema Validation
+  4. ObjectId Validation
+  5. Status Enum Values
+- pages/user/Orders.js
+
 ## MS1 CI URL
 
 https://github.com/cs4218/cs4218-2520-ecom-project-cs4218-2520-team27/actions/runs/22278857260
