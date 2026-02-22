@@ -158,13 +158,15 @@ To begin unit testing with Jest in your project, follow these steps:
 
 ## Workload Distribution
 
-### Leong Heng Yew, A0249237X
-Payment
+### 1. Leong Heng Yew, A0249237X
+
+### Milestone 1
+#### Payment
 - controllers/productController.js
    1. braintreeTokenController
    2. brainTreePaymentController
 
-Category
+#### Category
 - hooks/useCategory.js
 - pages/Categories.js
 - components/Form/CategoryForm.js
@@ -175,6 +177,23 @@ Category
    3. categoryControlller
    4. singleCategoryController
    5. deleteCategoryCOntroller
+
+### 2. Lee Wen Jun
+
+### Milestone 1
+
+#### Login
+- `client/src/pages/Auth/Login.js`
+
+#### Register
+- `client/src/pages/Auth/Register.js`
+
+#### Server Files
+- `controllers/authController.js`
+  - registerController
+  - loginController
+  - forgotPasswordController
+  - testController
 
 ## MS1 CI URL
 
