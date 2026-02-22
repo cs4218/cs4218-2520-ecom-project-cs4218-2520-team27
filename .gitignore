@@ -3,10 +3,6 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
-<<<<<<< HEAD
 /coverage/
-=======
-coverage/
-playwright-report/
+/playwright-report/
 .scannerwork
->>>>>>> b0a27165baf9615c8ecb432de38b75d147a6a985
