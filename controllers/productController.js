@@ -88,7 +88,7 @@ export const getProductController = async (req, res) => {
 // get single product
 export const getSingleProductController = async (req, res) => {
   try {
-    const product = await productModel
+  const product = await productModel
       .findOne({ slug: req.params.slug })
       .select("-photo")
       .populate("category");
@@ -347,10 +347,34 @@ export const braintreeTokenController = async (req, res) => {
 export const brainTreePaymentController = async (req, res) => {
   try {
     const { nonce, cart } = req.body;
-    let total = 0;
-    cart.map((i) => {
-      total += i.price;
-    });
+    if (!cart?.length) {
+      return res.status(400).send(new Error("Missing cart data in request body"));
+    }
+
+    // Leong Heng Yew, A0249237X
+    const uniqueCartSlugs = [...new Set(cart.map(item => item.slug))];
+    const dbProducts = await productModel.find(
+      { slug: { $in: uniqueCartSlugs } },
+      { price: 1, slug: 1, _id: 0 }
+    );
+    if (dbProducts.length !== uniqueCartSlugs.length) {
+      const foundSlugs = dbProducts.map(p => p.slug);
+      const missing = uniqueCartSlugs.filter(s => !foundSlugs.includes(s));
+      return res.status(400).send(new Error(`Missing items in database: ${missing.join(", ")}`));
+    }
+
+    let priceMismatchedItemSlug;
+    const total = cart.reduce((sum, item) => {
+      const dbProduct = dbProducts.find(p => p.slug === item.slug);
+      if (item.price !== dbProduct.price) {
+        priceMismatchedItemSlug = item.slug;
+      }
+      return sum + dbProduct.price;
+    }, 0);
+    if (priceMismatchedItemSlug) {
+      return res.status(400).send(new Error(`Price integrity check for ${priceMismatchedItemSlug} failed.`));
+    }
+
     let newTransaction = gateway.transaction.sale(
       {
         amount: total,
@@ -374,6 +398,6 @@ export const brainTreePaymentController = async (req, res) => {
     );
   } catch (error) {
     console.log(error);
-    res.status(500).send(error); // Leong Heng Yew, A0249237X
+    res.status(500).send(error);
   }
 };

@@ -117,11 +117,15 @@ describe("Braintree Controllers", () => {
   });
 
   describe("brainTreePaymentController", () => {
+    const item1 = { slug: "slug1", price: 10 };
+    const item1WrongPrice = { slug: "slug1", price: 1 };
+    const item2 = { slug: "slug2", price: 20 };
+
     it("should process payment and create order successfully", async () => {
-      req.body = {
-        nonce: "fake-nonce",
-        cart: [{ price: 10 }, { price: 20 }],
-      };
+      const mockCart = [item1, item2];
+      const fakeNonce = "fake-nonce";
+      req.body = { nonce: fakeNonce, cart: mockCart };
+      productModel.find = jest.fn().mockReturnValueOnce(mockCart);
       const mockResult = { success: true, transaction: { id: "tx123" } };
       mockGateway.transaction.sale.mockImplementation((opts, callback) => {
         callback(null, mockResult);
@@ -129,18 +133,90 @@ describe("Braintree Controllers", () => {
 
       await brainTreePaymentController(req, res);
 
+      expect(productModel.find).toHaveBeenCalledTimes(1);
       expect(mockGateway.transaction.sale).toHaveBeenCalledWith(
-        expect.objectContaining({ amount: 30, paymentMethodNonce: "fake-nonce" }),
+        expect.objectContaining({ amount: 30, paymentMethodNonce: fakeNonce }),
         expect.any(Function)
       );
-      expect(orderModel).toHaveBeenCalledTimes(1);
+      expect(orderModel).toHaveBeenCalledWith({
+        products: mockCart,
+        payment: mockResult,
+        buyer: req.user._id,
+      });
       expect(res.json).toHaveBeenCalledWith({ ok: true });
     });
 
-    it("should return 5xx if transaction fails", async () => {
+    it("should return 400 if cart is empty", async () => {
       req.body = { nonce: "fake-nonce", cart: [] };
-      const mockError = { message: "Payment failed" };
 
+      await brainTreePaymentController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.send).toHaveBeenCalled();
+    });
+
+    it("should return 400 if item does not exist in db", async () => {
+      req.body = { nonce: "fake-nonce", cart: [item1] };
+      productModel.find = jest.fn().mockReturnValueOnce([]);
+
+      await brainTreePaymentController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.send).toHaveBeenCalled();
+    });
+
+    it("should return 400 if some items are unavailable", async () => {
+      req.body = { nonce: "fake-nonce", cart: [item1, item2] };
+      productModel.find = jest.fn().mockReturnValueOnce([item1]);
+
+      await brainTreePaymentController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.send).toHaveBeenCalled();
+    });
+
+    it("should return 400 if item price in cart does not match db", async () => {
+      const mockCart = [item1];
+      req.body = { nonce: "fake-nonce", cart: mockCart };
+      productModel.find = jest.fn().mockReturnValueOnce([item1WrongPrice]);
+
+      await brainTreePaymentController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.send).toHaveBeenCalled();
+    });
+
+    it("should return 5xx if dbms errors out", async () => {
+      const mockCart = [item1];
+      req.body = { nonce: "fake-nonce", cart: mockCart };
+      const mockError = { message: "Dbms error" };
+      productModel.find = jest.fn().mockRejectedValueOnce(mockError);
+
+      await brainTreePaymentController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith5xxServerError();
+      expect(res.send).toHaveBeenCalledWith(mockError);
+    });
+
+    it("should return 5xx if dbms network error", async () => {
+      const mockCart = [item1];
+      req.body = { nonce: "fake-nonce", cart: mockCart };
+      const mockError = { message: "Dbms network error" };
+      productModel.find = jest.fn().mockImplementationOnce(() => {
+        throw mockError;
+      });
+
+      await brainTreePaymentController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith5xxServerError();
+      expect(res.send).toHaveBeenCalledWith(mockError);
+    });
+
+    it("should return 5xx if gateway transaction fails", async () => {
+      const mockCart = [item1];
+      req.body = { nonce: "fake-nonce", cart: mockCart };
+      productModel.find = jest.fn().mockReturnValueOnce(mockCart);
+      const mockError = { message: "Payment failed" };
       mockGateway.transaction.sale.mockImplementation((opts, callback) => {
         callback(mockError, null);
       });
@@ -151,10 +227,11 @@ describe("Braintree Controllers", () => {
       expect(res.send).toHaveBeenCalledWith(mockError);
     });
 
-    it("should return 5xx if network error", async () => {
-      req.body = { nonce: "fake-nonce", cart: [] };
-      const mockError = { message: "Payment network error" };
-
+    it("should return 5xx if gateway network error", async () => {
+      const mockCart = [item1];
+      req.body = { nonce: "fake-nonce", cart: mockCart };
+      productModel.find = jest.fn().mockReturnValueOnce(mockCart);
+      const mockError = { message: "Payment failed" };
       mockGateway.transaction.sale.mockImplementation((opts, callback) => {
         throw mockError;
       });
