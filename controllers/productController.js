@@ -339,7 +339,7 @@ export const braintreeTokenController = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).send(error);
+    res.status(500).send(error); // Leong Heng Yew, A0249237X
   }
 };
 
@@ -374,6 +374,6 @@ export const brainTreePaymentController = async (req, res) => {
     );
   } catch (error) {
     console.log(error);
-    res.status(500).send(error);
+    res.status(500).send(error); // Leong Heng Yew, A0249237X
   }
 };

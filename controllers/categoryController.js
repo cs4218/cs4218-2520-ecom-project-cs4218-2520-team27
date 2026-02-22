@@ -4,6 +4,7 @@ export const createCategoryController = async (req, res) => {
   try {
     const { name } = req.body;
     if (!name) {
+      // Leong Heng Yew, A0249237X
       return res.status(400).send({ message: "Name is required" });
     }
     const existingCategory = await categoryModel.findOne({ name });
@@ -26,7 +27,7 @@ export const createCategoryController = async (req, res) => {
     console.log(error);
     res.status(500).send({
       success: false,
-      error,
+      error, // Leong Heng Yew, A0249237X
       message: "Error in Category",
     });
   }

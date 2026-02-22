@@ -8,12 +8,13 @@ import { Modal } from "antd";
 const CreateCategory = () => {
   const [categories, setCategories] = useState([]);
   const [name, setName] = useState("");
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false); // Leong Heng Yew, A0249237X
   const [selected, setSelected] = useState(null);
   const [updatedName, setUpdatedName] = useState("");
   //handle Form
   const handleSubmit = async (e) => {
     e.preventDefault();
+     // Leong Heng Yew, A0249237X
     const newName = name?.trim();
     setName(newName);
     if (!newName) {
@@ -57,6 +58,7 @@ const CreateCategory = () => {
   //update category
   const handleUpdate = async (e) => {
     e.preventDefault();
+     // Leong Heng Yew, A0249237X
     const newUpdatedName = updatedName?.trim();
     setUpdatedName(newUpdatedName);
     if (!newUpdatedName) {
@@ -154,7 +156,7 @@ const CreateCategory = () => {
             <Modal
               onCancel={() => setOpen(false)}
               footer={null}
-              open={open}
+              open={open} // Leong Heng Yew, A0249237X
             >
               <CategoryForm
                 value={updatedName}
