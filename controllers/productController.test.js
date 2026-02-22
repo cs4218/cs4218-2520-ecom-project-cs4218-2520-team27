@@ -113,41 +113,55 @@ describe("Braintree Controllers", () => {
     });
   });
 
-  // describe("brainTreePaymentController", () => {
-  //   it("should process payment and create order successfully", async () => {
-  //     req.body = {
-  //       nonce: "fake-nonce",
-  //       cart: [{ price: 10 }, { price: 20 }],
-  //     };
-  //     const mockResult = { success: true, transaction: { id: "tx123" } };
-  //     mockGateway.transaction.sale.mockImplementation((opts, callback) => {
-  //       callback(null, mockResult);
-  //     });
+  describe("brainTreePaymentController", () => {
+    it("should process payment and create order successfully", async () => {
+      req.body = {
+        nonce: "fake-nonce",
+        cart: [{ price: 10 }, { price: 20 }],
+      };
+      const mockResult = { success: true, transaction: { id: "tx123" } };
+      mockGateway.transaction.sale.mockImplementation((opts, callback) => {
+        callback(null, mockResult);
+      });
 
-  //     await brainTreePaymentController(req, res);
+      await brainTreePaymentController(req, res);
 
-  //     expect(mockGateway.transaction.sale).toHaveBeenCalledWith(
-  //       expect.objectContaining({ amount: 30, paymentMethodNonce: "fake-nonce" }),
-  //       expect.any(Function)
-  //     );
-  //     expect(orderModel).toHaveBeenCalled();
-  //     expect(res.json).toHaveBeenCalledWith({ ok: true });
-  //   });
+      expect(mockGateway.transaction.sale).toHaveBeenCalledWith(
+        expect.objectContaining({ amount: 30, paymentMethodNonce: "fake-nonce" }),
+        expect.any(Function)
+      );
+      expect(orderModel).toHaveBeenCalled();
+      expect(res.json).toHaveBeenCalledWith({ ok: true });
+    });
 
-  //   it("should return 500 if transaction fails", async () => {
-  //     req.body = { nonce: "fake-nonce", cart: [] };
-  //     const mockError = { message: "Payment Failed" };
+    it("should return 500 if transaction fails", async () => {
+      req.body = { nonce: "fake-nonce", cart: [] };
+      const mockError = { message: "Payment failed" };
 
-  //     mockGateway.transaction.sale.mockImplementation((opts, callback) => {
-  //       callback(mockError, null);
-  //     });
+      mockGateway.transaction.sale.mockImplementation((opts, callback) => {
+        callback(mockError, null);
+      });
 
-  //     await brainTreePaymentController(req, res);
+      await brainTreePaymentController(req, res);
 
-  //     expect(res.status).toHaveBeenCalledWith5xxServerError();
-  //     expect(res.send).toHaveBeenCalledWith(mockError);
-  //   });
-  // });
+      expect(res.status).toHaveBeenCalledWith5xxServerError();
+      expect(res.send).toHaveBeenCalledWith(mockError);
+    });
+
+    it("should return 500 if network error", async () => {
+      req.body = { nonce: "fake-nonce", cart: [] };
+      const mockError = { message: "Payment network error" };
+
+      mockGateway.transaction.sale.mockImplementation((opts, callback) => {
+        throw mockError;
+      });
+
+      await brainTreePaymentController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith5xxServerError();
+      expect(res.send).toHaveBeenCalledWith(mockError);
+    });
+  });
 });
 
 
