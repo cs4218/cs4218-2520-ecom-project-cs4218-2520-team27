@@ -91,7 +91,7 @@ describe("Braintree Controllers", () => {
       expect(res.send).toHaveBeenCalledWith(mockResponse);
     });
 
-    it("should return 500 if token generation fails", async () => {
+    it("should return 5xx if token generation fails", async () => {
       const mockError = new Error("Braintree token generation failed");
       mockGateway.clientToken.generate.mockImplementation((opts, callback) => {
         callback(mockError, null);
@@ -103,7 +103,7 @@ describe("Braintree Controllers", () => {
       expect(res.send).toHaveBeenCalledWith(mockError);
     });
 
-    it("should return 500 if network error", async () => {
+    it("should return 5xx if network error", async () => {
       const mockError = new Error("Network error while generating braintree token");
       mockGateway.clientToken.generate.mockImplementation(() => {
         throw mockError;
@@ -137,7 +137,7 @@ describe("Braintree Controllers", () => {
       expect(res.json).toHaveBeenCalledWith({ ok: true });
     });
 
-    it("should return 500 if transaction fails", async () => {
+    it("should return 5xx if transaction fails", async () => {
       req.body = { nonce: "fake-nonce", cart: [] };
       const mockError = { message: "Payment failed" };
 
@@ -151,7 +151,7 @@ describe("Braintree Controllers", () => {
       expect(res.send).toHaveBeenCalledWith(mockError);
     });
 
-    it("should return 500 if network error", async () => {
+    it("should return 5xx if network error", async () => {
       req.body = { nonce: "fake-nonce", cart: [] };
       const mockError = { message: "Payment network error" };
 
