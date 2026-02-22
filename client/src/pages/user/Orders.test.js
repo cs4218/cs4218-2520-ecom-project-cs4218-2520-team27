@@ -1,11 +1,31 @@
+import React from 'react';
 import { render, waitFor, screen } from '@testing-library/react';
 import axios from 'axios';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import '@testing-library/jest-dom/extend-expect';
 import Orders from './Orders';
 
+// Lai Xue Le Shaun, A0252643H
+
 // Mock axios
 jest.mock('axios');
+
+// Mock Layout to just render children
+jest.mock('../../components/Layout', () => {
+  const React = require('react');
+  return ({ children }) => React.createElement('div', null, children);
+});
+
+// Mock UserMenu
+jest.mock('../../components/UserMenu', () => {
+  const React = require('react');
+  return () => React.createElement('div', null, 'UserMenu');
+});
+
+// Mock moment
+jest.mock('moment', () => () => ({
+  fromNow: () => 'a few seconds ago'
+}));
 
 // Mock hooks
 jest.mock('../../hooks/useCategory', () => jest.fn(() => []));
@@ -114,10 +134,9 @@ describe('Orders Component', () => {
       expect(axios.get).toHaveBeenCalledWith('/api/v1/auth/orders');
     });
 
-    await waitFor(() => {
-      expect(screen.getByText('Processing')).toBeInTheDocument();
-      expect(screen.getByText('Shipped')).toBeInTheDocument();
-    });
+    await screen.findByText('Processing');
+    expect(screen.getByText('Processing')).toBeInTheDocument();
+    expect(screen.getByText('Shipped')).toBeInTheDocument();
   });
 
   it('displays buyer names correctly', async () => {
@@ -125,10 +144,9 @@ describe('Orders Component', () => {
 
     renderOrders();
 
-    await waitFor(() => {
-      expect(screen.getByText('John Doe')).toBeInTheDocument();
-      expect(screen.getByText('Jane Doe')).toBeInTheDocument();
-    });
+    await screen.findByText('John Doe');
+    expect(screen.getByText('John Doe')).toBeInTheDocument();
+    expect(screen.getByText('Jane Doe')).toBeInTheDocument();
   });
 
   it('displays payment status correctly', async () => {
@@ -136,10 +154,9 @@ describe('Orders Component', () => {
 
     renderOrders();
 
-    await waitFor(() => {
-      expect(screen.getByText('Success')).toBeInTheDocument();
-      expect(screen.getByText('Failed')).toBeInTheDocument();
-    });
+    await screen.findByText('Success');
+    expect(screen.getByText('Success')).toBeInTheDocument();
+    expect(screen.getByText('Failed')).toBeInTheDocument();
   });
 
   it('displays product count for each order', async () => {
@@ -164,18 +181,15 @@ describe('Orders Component', () => {
 
     renderOrders();
 
-    await waitFor(() => {
-      expect(screen.getByText('Test Product 1')).toBeInTheDocument();
-      expect(screen.getByText('Test Product 2')).toBeInTheDocument();
-      expect(screen.getByText('Test Product 3')).toBeInTheDocument();
-    });
+    await screen.findByText('Test Product 1');
+    expect(screen.getByText('Test Product 1')).toBeInTheDocument();
+    expect(screen.getByText('Test Product 2')).toBeInTheDocument();
+    expect(screen.getByText('Test Product 3')).toBeInTheDocument();
 
     // Check prices
-    await waitFor(() => {
-      expect(screen.getByText('Price : 99.99')).toBeInTheDocument();
-      expect(screen.getByText('Price : 149.99')).toBeInTheDocument();
-      expect(screen.getByText('Price : 199.99')).toBeInTheDocument();
-    });
+    expect(screen.getByText('Price : 99.99')).toBeInTheDocument();
+    expect(screen.getByText('Price : 149.99')).toBeInTheDocument();
+    expect(screen.getByText('Price : 199.99')).toBeInTheDocument();
   });
 
   it('displays truncated product descriptions', async () => {
@@ -184,8 +198,6 @@ describe('Orders Component', () => {
     renderOrders();
 
     await waitFor(() => {
-      // Description is truncated to 30 characters
-      // "This is a test product description".substring(0, 30) = "This is a test product descrip"
       const truncatedDescriptions = screen.getAllByText('This is a test product descrip');
       expect(truncatedDescriptions.length).toBeGreaterThan(0);
     });
@@ -196,13 +208,11 @@ describe('Orders Component', () => {
 
     renderOrders();
 
-    await waitFor(() => {
-      const images = screen.getAllByRole('img');
-      expect(images.length).toBe(3);
-      expect(images[0]).toHaveAttribute('src', '/api/v1/product/product-photo/product1');
-      expect(images[1]).toHaveAttribute('src', '/api/v1/product/product-photo/product2');
-      expect(images[2]).toHaveAttribute('src', '/api/v1/product/product-photo/product3');
-    });
+    const images = await screen.findAllByRole('img');
+    expect(images.length).toBe(3);
+    expect(images[0]).toHaveAttribute('src', '/api/v1/product/product-photo/product1');
+    expect(images[1]).toHaveAttribute('src', '/api/v1/product/product-photo/product2');
+    expect(images[2]).toHaveAttribute('src', '/api/v1/product/product-photo/product3');
   });
 
   it('handles empty orders list', async () => {
@@ -266,12 +276,12 @@ describe('Orders Component', () => {
 
     renderOrders();
 
-    await waitFor(() => {
-      expect(screen.getAllByText('#').length).toBeGreaterThan(0);
-      expect(screen.getAllByText('Status').length).toBeGreaterThan(0);
-      expect(screen.getAllByText('Buyer').length).toBeGreaterThan(0);
-      expect(screen.getAllByText('Payment').length).toBeGreaterThan(0);
-      expect(screen.getAllByText('Quantity').length).toBeGreaterThan(0);
-    });
+    // Wait for orders to load (indicated by status appearing)
+    await screen.findByText('Processing');
+    expect(screen.getAllByText('#').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Status').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Buyer').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Payment').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Quantity').length).toBeGreaterThan(0);
   });
 });

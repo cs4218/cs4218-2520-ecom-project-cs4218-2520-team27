@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 import orderModel from "./orderModel.js";
 
+// Lai Xue Le Shaun, A0252643H
+
 describe("Order Model", () => {
   describe("Schema Definition", () => {
     it("should have products field as array of ObjectIds", () => {

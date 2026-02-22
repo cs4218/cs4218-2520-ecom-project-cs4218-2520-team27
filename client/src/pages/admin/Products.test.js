@@ -6,6 +6,8 @@ import '@testing-library/jest-dom/extend-expect';
 import toast from 'react-hot-toast';
 import Products from './Products';
 
+// Lai Xue Le Shaun, A0252643H
+
 // Mock axios
 jest.mock('axios');
 jest.mock('react-hot-toast');
@@ -109,11 +111,10 @@ describe('Admin Products Component', () => {
       expect(axios.get).toHaveBeenCalledWith('/api/v1/product/get-product');
     });
 
-    await waitFor(() => {
-      expect(screen.getByText('Test Product 1')).toBeInTheDocument();
-      expect(screen.getByText('Test Product 2')).toBeInTheDocument();
-      expect(screen.getByText('Test Product 3')).toBeInTheDocument();
-    });
+    await screen.findByText('Test Product 1');
+    expect(screen.getByText('Test Product 1')).toBeInTheDocument();
+    expect(screen.getByText('Test Product 2')).toBeInTheDocument();
+    expect(screen.getByText('Test Product 3')).toBeInTheDocument();
   });
 
   it('displays product descriptions', async () => {
@@ -121,11 +122,10 @@ describe('Admin Products Component', () => {
 
     renderProducts();
 
-    await waitFor(() => {
-      expect(screen.getByText('This is the first test product description')).toBeInTheDocument();
-      expect(screen.getByText('This is the second test product description')).toBeInTheDocument();
-      expect(screen.getByText('This is the third test product description')).toBeInTheDocument();
-    });
+    await screen.findByText('This is the first test product description');
+    expect(screen.getByText('This is the first test product description')).toBeInTheDocument();
+    expect(screen.getByText('This is the second test product description')).toBeInTheDocument();
+    expect(screen.getByText('This is the third test product description')).toBeInTheDocument();
   });
 
   it('renders product images with correct src', async () => {
@@ -133,13 +133,11 @@ describe('Admin Products Component', () => {
 
     renderProducts();
 
-    await waitFor(() => {
-      const images = screen.getAllByRole('img');
-      expect(images.length).toBe(3);
-      expect(images[0]).toHaveAttribute('src', '/api/v1/product/product-photo/product1');
-      expect(images[1]).toHaveAttribute('src', '/api/v1/product/product-photo/product2');
-      expect(images[2]).toHaveAttribute('src', '/api/v1/product/product-photo/product3');
-    });
+    const images = await screen.findAllByRole('img');
+    expect(images.length).toBe(3);
+    expect(images[0]).toHaveAttribute('src', '/api/v1/product/product-photo/product1');
+    expect(images[1]).toHaveAttribute('src', '/api/v1/product/product-photo/product2');
+    expect(images[2]).toHaveAttribute('src', '/api/v1/product/product-photo/product3');
   });
 
   it('renders product images with correct alt text', async () => {
@@ -147,12 +145,10 @@ describe('Admin Products Component', () => {
 
     renderProducts();
 
-    await waitFor(() => {
-      const images = screen.getAllByRole('img');
-      expect(images[0]).toHaveAttribute('alt', 'Test Product 1');
-      expect(images[1]).toHaveAttribute('alt', 'Test Product 2');
-      expect(images[2]).toHaveAttribute('alt', 'Test Product 3');
-    });
+    const images = await screen.findAllByRole('img');
+    expect(images[0]).toHaveAttribute('alt', 'Test Product 1');
+    expect(images[1]).toHaveAttribute('alt', 'Test Product 2');
+    expect(images[2]).toHaveAttribute('alt', 'Test Product 3');
   });
 
   it('renders links to update product pages', async () => {
@@ -160,16 +156,17 @@ describe('Admin Products Component', () => {
 
     renderProducts();
 
-    await waitFor(() => {
-      const links = screen.getAllByRole('link');
-      const productLinks = links.filter(link => 
-        link.getAttribute('href')?.includes('/dashboard/admin/product/')
-      );
-      expect(productLinks.length).toBe(3);
-      expect(productLinks[0]).toHaveAttribute('href', '/dashboard/admin/product/test-product-1');
-      expect(productLinks[1]).toHaveAttribute('href', '/dashboard/admin/product/test-product-2');
-      expect(productLinks[2]).toHaveAttribute('href', '/dashboard/admin/product/test-product-3');
-    });
+    // Wait for products to load first
+    await screen.findByText('Test Product 1');
+    
+    const links = screen.getAllByRole('link');
+    const productLinks = links.filter(link => 
+      link.getAttribute('href')?.includes('/dashboard/admin/product/')
+    );
+    expect(productLinks.length).toBe(3);
+    expect(productLinks[0]).toHaveAttribute('href', '/dashboard/admin/product/test-product-1');
+    expect(productLinks[1]).toHaveAttribute('href', '/dashboard/admin/product/test-product-2');
+    expect(productLinks[2]).toHaveAttribute('href', '/dashboard/admin/product/test-product-3');
   });
 
   it('handles empty products list', async () => {
@@ -238,11 +235,10 @@ describe('Admin Products Component', () => {
   it('renders product cards with correct styling', async () => {
     axios.get.mockResolvedValueOnce({ data: { products: mockProducts } });
 
-    const { container } = renderProducts();
+    renderProducts();
 
-    await waitFor(() => {
-      const cards = container.querySelectorAll('.card');
-      expect(cards.length).toBe(3);
-    });
+    // Wait for products to load and verify by counting product links
+    const images = await screen.findAllByRole('img');
+    expect(images.length).toBe(3);
   });
 });

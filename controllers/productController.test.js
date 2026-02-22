@@ -12,6 +12,8 @@ import {
 import orderModel from "../models/orderModel.js";
 import productModel from "../models/productModel.js";
 
+// Lai Xue Le Shaun, A0252643H
+
 // Mock dependencies
 jest.mock("../models/productModel.js");
 jest.mock("../models/categoryModel.js");

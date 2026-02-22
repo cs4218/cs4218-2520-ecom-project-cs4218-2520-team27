@@ -8,6 +8,8 @@ import userModel from "../models/userModel.js";
 import orderModel from "../models/orderModel.js";
 import { hashPassword } from "../helpers/authHelper.js";
 
+// Lai Xue Le Shaun, A0252643H
+
 // Mock dependencies
 jest.mock("../models/userModel.js");
 jest.mock("../models/orderModel.js");
