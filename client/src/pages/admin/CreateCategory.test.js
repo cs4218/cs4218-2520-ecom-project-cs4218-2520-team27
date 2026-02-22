@@ -32,9 +32,7 @@ describe("CreateCategory Component", () => {
 
     expect(axios.get).toHaveBeenCalledTimes(1);
     testCategories.forEach(async (category) => {
-      await waitFor(() => {
-        expect(screen.getByText(category.name)).toBeInTheDocument();
-      });
+      await waitFor(() => expect(screen.getByText(category.name)).toBeInTheDocument);
     });
   });
 
@@ -46,6 +44,16 @@ describe("CreateCategory Component", () => {
     await waitFor(expect(toast.error).toHaveBeenCalled);
   });
 
+  const submitMockCategoryForm = async (categoryName) => {
+    await act(async () => {
+      const { setValue } = CategoryForm.mock.calls.at(-1)[0];
+      setValue(categoryName);
+    });
+    await act(async () => {
+      const { handleSubmit } = CategoryForm.mock.calls.at(-1)[0];
+      await handleSubmit({ preventDefault: () => {} });
+    });
+  };
 
   describe("Create new category", () => {
     it("creates a new category", async () => {
@@ -55,6 +63,29 @@ describe("CreateCategory Component", () => {
 
       // CategoryForm should be rendered and called with props by CreateCategory
       const testCategory = "testCategory";
+      await submitMockCategoryForm(testCategory);
+
+      expect(axios.post).toHaveBeenCalledWith(
+        expect.stringContaining(API_CREATE),
+        { name: testCategory }
+      );
+      expect(toast.success).toHaveBeenCalledTimes(1);
+    });
+
+    it("rejects invalid category (empty string)", async () => {
+      render(<CreateCategory />);
+
+      const testCategory = "";
+      await submitMockCategoryForm(testCategory);
+
+      expect(axios.post).not.toHaveBeenCalled();
+      expect(toast.error).toHaveBeenCalledTimes(1);
+    });
+
+    it("rejects invalid category (whitespace string)", async () => {
+      render(<CreateCategory />);
+
+      const testCategory = " ";
       await act(async () => {
         const { setValue } = CategoryForm.mock.calls.at(-1)[0];
         setValue(testCategory);
@@ -64,41 +95,40 @@ describe("CreateCategory Component", () => {
         await handleSubmit({ preventDefault: () => {} });
       });
 
-      expect(axios.post).toHaveBeenCalledWith(
-        expect.stringContaining(API_CREATE),
-        { name: testCategory }
-      );
-      expect(toast.success).toHaveBeenCalledTimes(1);
+      expect(axios.post).not.toHaveBeenCalled();
+      expect(toast.error).toHaveBeenCalledTimes(1);
     });
 
-    it("handles api error when creating new category", async () => {
+    it("rejects invalid category (null value)", async () => {
+      render(<CreateCategory />);
+
+      const testCategory = null;
+      await submitMockCategoryForm(testCategory);
+
+      expect(axios.post).not.toHaveBeenCalled();
+      expect(toast.error).toHaveBeenCalledTimes(1);
+    });
+
+    it("handles api failure when creating new category", async () => {
       axios.post.mockResolvedValueOnce({ data: { success: false } });
 
       render(<CreateCategory />);
 
-      await act(async () => {
-        const { handleSubmit } = CategoryForm.mock.calls.at(-1)[0];
-        await handleSubmit({ preventDefault: () => {} });
-      });
+      const testCategory = "testCategory";
+      await submitMockCategoryForm(testCategory);
 
-      await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledTimes(1);
-      });
+      expect(toast.error).toHaveBeenCalledTimes(1);
     });
 
-    it("handles network error when creating new category", async () => {
+    it("handles api error when creating new category", async () => {
       axios.post.mockRejectedValueOnce(new Error("Create category test"));
 
       render(<CreateCategory />);
 
-      await act(async () => {
-        const { handleSubmit } = CategoryForm.mock.calls.at(-1)[0];
-        await handleSubmit({ preventDefault: () => {} });
-      });
+      const testCategory = "testCategory";
+      await submitMockCategoryForm(testCategory);
 
-      await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledTimes(1);
-      });
+      expect(toast.error).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -111,28 +141,51 @@ describe("CreateCategory Component", () => {
       // User clicks edit for existing Electronics category
       const editButtons = await screen.findAllByText("Edit");
       fireEvent.click(editButtons[0]);
-      // User changes the text on CategoryForm.
+      // User changes the text on CategoryForm and clicks submit button
       const newCategory = "Gadgets";
-      await act(async () => {
-        const { setValue } = CategoryForm.mock.calls.at(-1)[0];
-        setValue(newCategory);
-      });
-      // User clicks submit
-      await act(async () => {
-        const { handleSubmit } = CategoryForm.mock.calls.at(-1)[0];
-        await handleSubmit({ preventDefault: () => {} });
-      });
+      await submitMockCategoryForm(newCategory);
 
-      await waitFor(() => {
-        expect(axios.put).toHaveBeenCalledWith(
-          expect.stringContaining(API_UPDATE),
-          { name: newCategory }
-        );
-        expect(toast.success).toHaveBeenCalledTimes(1);
-      });
+      expect(axios.put).toHaveBeenCalledWith(
+        expect.stringContaining(API_UPDATE),
+        { name: newCategory }
+      );
+      expect(toast.success).toHaveBeenCalledTimes(1);
     });
 
-    it("handles api error when updating category", async () => {
+    it("rejects category update (empty string)", async () => {
+      render(<CreateCategory />);
+
+      const editButtons = await screen.findAllByText("Edit");
+      fireEvent.click(editButtons[0]);
+      const newCategory = "";
+      await submitMockCategoryForm(newCategory);
+
+      expect(toast.error).toHaveBeenCalledTimes(1);
+    });
+
+    it("rejects category update (whitespace string)", async () => {
+      render(<CreateCategory />);
+
+      const editButtons = await screen.findAllByText("Edit");
+      fireEvent.click(editButtons[0]);
+      const newCategory = " ";
+      await submitMockCategoryForm(newCategory);
+
+      expect(toast.error).toHaveBeenCalledTimes(1);
+    });
+
+    it("rejects category update (null value)", async () => {
+      render(<CreateCategory />);
+
+      const editButtons = await screen.findAllByText("Edit");
+      fireEvent.click(editButtons[0]);
+      const newCategory = null;
+      await submitMockCategoryForm(newCategory);
+
+      expect(toast.error).toHaveBeenCalledTimes(1);
+    });
+
+    it("handles api failure when updating category", async () => {
       axios.put.mockResolvedValueOnce({ data: { success: false } });
 
       render(<CreateCategory />);
@@ -140,17 +193,13 @@ describe("CreateCategory Component", () => {
       const editButtons = await screen.findAllByText("Edit");
       fireEvent.click(editButtons[0]);
 
-      await act(async () => {
-        const { handleSubmit } = CategoryForm.mock.calls.at(-1)[0];
-        await handleSubmit({ preventDefault: () => {} });
-      });
+      const newCategory = "Gadgets";
+      await submitMockCategoryForm(newCategory);
 
-      await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledTimes(1);
-      });
+      expect(toast.error).toHaveBeenCalledTimes(1);
     });
 
-    it("handles network error when updating category", async () => {
+    it("handles api error when updating category", async () => {
       axios.put.mockRejectedValueOnce(new Error("Update category test"));
 
       render(<CreateCategory />);
@@ -158,14 +207,10 @@ describe("CreateCategory Component", () => {
       const editButtons = await screen.findAllByText("Edit");
       fireEvent.click(editButtons[0]);
 
-      await act(async () => {
-        const { handleSubmit } = CategoryForm.mock.calls.at(-1)[0];
-        await handleSubmit({ preventDefault: () => {} });
-      });
+      const newCategory = "Gadgets";
+      await submitMockCategoryForm(newCategory);
 
-      await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledTimes(1);
-      });
+      expect(toast.error).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -187,7 +232,7 @@ describe("CreateCategory Component", () => {
       });
     });
 
-    it("handles api error when deleting category", async () => {
+    it("handles api failure when deleting category", async () => {
       axios.delete.mockResolvedValueOnce({ data: { success: false } });
 
       render(<CreateCategory />);
@@ -200,7 +245,7 @@ describe("CreateCategory Component", () => {
       });
     });
 
-    it("handles network error when deleting category", async () => {
+    it("handles api error when deleting category", async () => {
       axios.delete.mockRejectedValueOnce(new Error("Delete category test"));
 
       render(<CreateCategory />);
