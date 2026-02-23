@@ -178,7 +178,7 @@ To begin unit testing with Jest in your project, follow these steps:
    4. singleCategoryController
    5. deleteCategoryCOntroller
 
-### 2. Lee Wen Jun
+### 2. Lee Wen Jun, A0235164J
 
 ### Milestone 1
 
@@ -223,6 +223,21 @@ To begin unit testing with Jest in your project, follow these steps:
   4. ObjectId Validation
   5. Status Enum Values
 - pages/user/Orders.js
+
+### 4. Kim Hofmann, A0337805Y
+
+#### Protected Routes
+- context/auth.js
+- helpers/authHelper.js
+- middlewares/authMiddleware.js
+
+#### Product
+- pages/CategoryProduct.js
+- pages/ProductDetails.js
+- models/productModel.js
+
+
+### Milestone 1
 
 ## MS1 CI URL
 
