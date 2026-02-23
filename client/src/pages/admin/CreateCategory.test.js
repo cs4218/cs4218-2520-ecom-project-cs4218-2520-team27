@@ -31,9 +31,9 @@ describe("CreateCategory Component", () => {
   it("updates categories state on get-category api success", async () => {
     render(<CreateCategory />);
 
-    expect(axios.get).toHaveBeenCalledWith(expect.stringContaining(API_GET));
+    await waitFor(() => expect(axios.get).toHaveBeenCalledWith(expect.stringContaining(API_GET)));
     for (const category of testCategories) {
-      expect(await screen.findByText(category.name)).toBeInTheDocument()
+      expect(await screen.findByText(category.name)).toBeInTheDocument();
     }
   });
 
@@ -44,7 +44,7 @@ describe("CreateCategory Component", () => {
 
     render(<CreateCategory />);
 
-    expect(axios.get).toHaveBeenCalledWith(expect.stringContaining(API_GET));
+    await waitFor(() => expect(axios.get).toHaveBeenCalledWith(expect.stringContaining(API_GET)));
     for (const category of testCategories) {
       expect(screen.queryByText(category.name)).not.toBeInTheDocument();
     }
