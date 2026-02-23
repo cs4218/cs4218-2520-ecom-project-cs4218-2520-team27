@@ -7,6 +7,7 @@ import CreateCategory from "./CreateCategory";
 import testCategories from "../../../../data/test.categories.json";
 
 // Leong Heng Yew, A0249237X
+const API_GET = "/get-category";
 const API_CREATE = "/create-category";
 const API_UPDATE = "/update-category";
 const API_DELETE = "/delete-category";
@@ -27,16 +28,29 @@ describe("CreateCategory Component", () => {
     });
   });
 
-  it("fetches existing categories", async () => {
+  it("updates categories state on get-category api success", async () => {
     render(<CreateCategory />);
 
-    expect(axios.get).toHaveBeenCalledTimes(1);
-    testCategories.forEach(async (category) => {
-      await waitFor(() => expect(screen.getByText(category.name)).toBeInTheDocument);
-    });
+    expect(axios.get).toHaveBeenCalledWith(expect.stringContaining(API_GET));
+    for (const category of testCategories) {
+      expect(await screen.findByText(category.name)).toBeInTheDocument()
+    }
   });
 
-  it("handles error when fetching existing categories", async () => {
+  it("does not update categories state on get-category api failure", async () => {
+    axios.get.mockResolvedValueOnce({
+      data: { success: false, category: testCategories },
+    });
+
+    render(<CreateCategory />);
+
+    expect(axios.get).toHaveBeenCalledWith(expect.stringContaining(API_GET));
+    for (const category of testCategories) {
+      expect(screen.queryByText(category.name)).not.toBeInTheDocument();
+    }
+  });
+
+  it("handles network error when fetching existing categories", async () => {
     axios.get.mockRejectedValueOnce(new Error("Fetch categories test"));
 
     render(<CreateCategory />);
