@@ -31,10 +31,10 @@ describe("CreateCategory Component", () => {
   it("updates categories state on get-category api success", async () => {
     render(<CreateCategory />);
 
-    await waitFor(() => expect(axios.get).toHaveBeenCalledWith(expect.stringContaining(API_GET)));
     for (const category of testCategories) {
       expect(await screen.findByText(category.name)).toBeInTheDocument();
     }
+    expect(axios.get).toHaveBeenCalledWith(expect.stringContaining(API_GET));
   });
 
   it("does not update categories state on get-category api failure", async () => {
@@ -43,11 +43,12 @@ describe("CreateCategory Component", () => {
     });
 
     render(<CreateCategory />);
+    await jest.runAllTimersAsync(); // Ensure the async getAllCategory() finishes running
 
-    await waitFor(() => expect(axios.get).toHaveBeenCalledWith(expect.stringContaining(API_GET)));
     for (const category of testCategories) {
       expect(screen.queryByText(category.name)).not.toBeInTheDocument();
     }
+    expect(axios.get).toHaveBeenCalledWith(expect.stringContaining(API_GET));
   });
 
   it("handles network error when fetching existing categories", async () => {
