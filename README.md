@@ -195,6 +195,41 @@ To begin unit testing with Jest in your project, follow these steps:
   - forgotPasswordController
   - testController
 
+### Milestone 2
+
+#### Integration Testing
+- Test file: `controllers/authenticationAndAccessControl.integration.test.js`
+  - Modules/files included:
+    - `controllers/authController.js` (`registerController`, `loginController`, `forgotPasswordController`, `testController`, `updateProfileController`, `getOrdersController`, `getAllOrdersController`, `orderStatusController`)
+    - `helpers/authHelper.js`
+    - `middlewares/authMiddleware.js`
+    - `models/userModel.js`
+    - `models/orderModel.js`
+  - Tests conducted:
+    - Registration flow integration (validation, duplicate email, success, error handling)
+    - Login flow integration (valid login, invalid credentials, missing fields, error handling)
+    - Protected route and admin authorization integration (`requireSignIn`, `isAdmin`)
+    - Full user journey integration (register → login → protected access)
+    - Forgot-password, profile update, and order controller integration paths
+
+#### UI Testing
+- Test file: `tests/ui/newCustomerOnboarding.e2e.spec.js`
+  - Modules/files included:
+    - `client/src/pages/Auth/Register.js`
+    - `client/src/pages/Auth/Login.js`
+    - `client/src/context/auth.js`
+    - `client/src/components/Routes/Private.js`
+    - `client/src/pages/user/Dashboard.js`
+    - `client/src/pages/user/Profile.js`
+    - `client/src/pages/user/Orders.js`
+    - Supporting setup: `playwright.config.js`, `package.json` (Playwright scripts)
+  - Tests conducted:
+    - New user registration success and feedback
+    - Login with newly created account and redirect to account area (`/dashboard/user`)
+    - Access to account-only pages (`/dashboard/user/profile`, `/dashboard/user/orders`) after sign-in
+    - Unauthenticated user block/redirect for protected routes
+    - Invalid login feedback verification
+
 ### 3. Lai Xue Le Shaun, A0252643H
 
 ### Milestone 1
