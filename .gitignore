@@ -6,3 +6,8 @@ node_modules/
 /coverage/
 /playwright-report/
 .scannerwork
+
+# Local test artifacts
+playwright-run.log
+ui-test-run.json
+*.log
