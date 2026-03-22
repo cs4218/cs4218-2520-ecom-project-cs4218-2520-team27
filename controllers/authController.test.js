@@ -730,7 +730,7 @@ describe("Auth Controller - Order Related Functions", () => {
       consoleSpy.mockRestore();
     });
 
-    it("should return null if order not found", async () => {
+    it("should return 404 if order not found", async () => {
       mockReq.params = { orderId: "nonexistent" };
       mockReq.body = { status: "Shipped" };
 
@@ -738,7 +738,11 @@ describe("Auth Controller - Order Related Functions", () => {
 
       await orderStatusController(mockReq, mockRes);
 
-      expect(mockRes.json).toHaveBeenCalledWith(null);
+      expect(mockRes.status).toHaveBeenCalledWith(404);
+      expect(mockRes.send).toHaveBeenCalledWith({
+        success: false,
+        message: "Order not found",
+      });
     });
   });
 
