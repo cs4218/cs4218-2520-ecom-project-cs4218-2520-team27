@@ -259,6 +259,13 @@ To begin unit testing with Jest in your project, follow these steps:
   5. Status Enum Values
 - pages/user/Orders.js
 
+### Milestone 2
+#### Product
+- tests/ui/productDiscoveryAndComparison.e2e.spec.js
+
+#### Order
+- controllers/orderFulfillment.integration.test.js
+
 ### 4. Kim Hofmann, A0337805Y
 
 #### Protected Routes
