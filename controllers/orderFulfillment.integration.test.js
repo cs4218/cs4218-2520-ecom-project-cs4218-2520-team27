@@ -115,12 +115,13 @@ describe("INT: Staff can manage fulfillment and customers can only view their ow
       params: { orderId: "order-4" },
       body: { status: "Delivered" },
     };
-    const res = {};
+    const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
     const next = jest.fn();
 
     await requireSignIn(req, res, next);
 
     expect(next).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(401);
     expect(orderModel.findByIdAndUpdate).not.toHaveBeenCalled();
   });
 

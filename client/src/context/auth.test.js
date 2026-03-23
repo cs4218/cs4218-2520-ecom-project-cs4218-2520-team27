@@ -46,10 +46,15 @@ describe('Auth Context', () => {
     const testToken = 'test-token-12345';
 
     const { result } = renderHook(() => useAuth(), { wrapper });
-    result.current[1]({
-      user: null,
-      token: testToken,
+    
+    act(() => {
+      result.current[1]({
+        user: null,
+        token: testToken,
+      });
     });
+
+    expect(axios.defaults.headers.common['Authorization']).toBe(testToken);
   });
 
   test('should load auth data from localStorage on mount', () => {

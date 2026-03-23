@@ -355,12 +355,20 @@ export const brainTreePaymentController = async (req, res) => {
     const uniqueCartSlugs = [...new Set(cart.map(item => item.slug))];
     const dbProducts = await productModel.find(
       { slug: { $in: uniqueCartSlugs } },
-      { price: 1, slug: 1, _id: 0 }
+      { price: 1, slug: 1, quantity: 1, _id: 1 }
     );
     if (dbProducts.length !== uniqueCartSlugs.length) {
       const foundSlugs = dbProducts.map(p => p.slug);
       const missing = uniqueCartSlugs.filter(s => !foundSlugs.includes(s));
       return res.status(400).send(new Error(`Missing items in database: ${missing.join(", ")}`));
+    }
+
+    // Check inventory limits
+    for (const p of dbProducts) {
+      const requestedQuantity = cart.filter(item => item.slug === p.slug).length;
+      if (requestedQuantity > p.quantity) {
+          return res.status(400).send(new Error(`Requested quantity for ${p.slug} exceeds available inventory.`));
+      }
     }
 
     let priceMismatchedItemSlug;
@@ -375,22 +383,34 @@ export const brainTreePaymentController = async (req, res) => {
       return res.status(400).send(new Error(`Price integrity check for ${priceMismatchedItemSlug} failed.`));
     }
 
+    // Calculate dynamic final total with shipping and taxes
+    const taxRate = 0.09; // 9% tax margin
+    const shippingFee = 10.00; // base shipping fee
+    const finalTotal = total + (total * taxRate) + shippingFee;
+
     let newTransaction = gateway.transaction.sale(
       {
-        amount: total,
+        amount: finalTotal,
         paymentMethodNonce: nonce,
         options: {
           submitForSettlement: true,
         },
       },
-      function (error, result) {
+      async function (error, result) {
         if (result) {
+          // Decrement inventory sequentially
+          for (const p of dbProducts) {
+             const requestedQuantity = cart.filter(item => item.slug === p.slug).length;
+             await productModel.findByIdAndUpdate(p._id, { $inc: { quantity: -requestedQuantity } });
+          }
+
           const order = new orderModel({
             products: cart,
             payment: result,
             buyer: req.user._id,
-          }).save();
-          res.json({ ok: true });
+          });
+          await order.save();
+          res.json({ ok: true, total: finalTotal });
         } else {
           res.status(500).send(error);
         }

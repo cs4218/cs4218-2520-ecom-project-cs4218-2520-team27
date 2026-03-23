@@ -132,10 +132,12 @@ describe("Braintree Controllers", () => {
       });
 
       await brainTreePaymentController(req, res);
+      
+      await new Promise(process.nextTick);
 
       expect(productModel.find).toHaveBeenCalledTimes(1);
       expect(mockGateway.transaction.sale).toHaveBeenCalledWith(
-        expect.objectContaining({ amount: 30, paymentMethodNonce: fakeNonce }),
+        expect.objectContaining({ amount: 42.7, paymentMethodNonce: fakeNonce }),
         expect.any(Function)
       );
       expect(orderModel).toHaveBeenCalledWith({
@@ -143,7 +145,7 @@ describe("Braintree Controllers", () => {
         payment: mockResult,
         buyer: req.user._id,
       });
-      expect(res.json).toHaveBeenCalledWith({ ok: true });
+      expect(res.json).toHaveBeenCalledWith({ ok: true, total: 42.7 });
     });
 
     it("should return 400 if cart is empty", async () => {

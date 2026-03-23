@@ -60,7 +60,9 @@ describe('Auth Middleware', () => {
 
       
       expect(JWT.verify).toHaveBeenCalled();
-      expect(consoleLogSpy).toHaveBeenCalled();
+      expect(consoleLogSpy).toHaveBeenCalledWith("requireSignIn Error:", expect.any(Error));
+      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.send).toHaveBeenCalledWith({ success: false, message: "Unauthorized: Invalid or missing token" });
       expect(next).not.toHaveBeenCalled();
       consoleLogSpy.mockRestore();
     });
@@ -77,7 +79,9 @@ describe('Auth Middleware', () => {
       await requireSignIn(req, res, next);
 
       
-      expect(consoleLogSpy).toHaveBeenCalledWith(error);
+      expect(consoleLogSpy).toHaveBeenCalledWith("requireSignIn Error:", error);
+      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.send).toHaveBeenCalledWith({ success: false, message: "Unauthorized: Invalid or missing token" });
       expect(next).not.toHaveBeenCalled();
       consoleLogSpy.mockRestore();
     });
@@ -94,7 +98,9 @@ describe('Auth Middleware', () => {
       await requireSignIn(req, res, next);
 
       
-      expect(consoleLogSpy).toHaveBeenCalledWith(error);
+      expect(consoleLogSpy).toHaveBeenCalledWith("requireSignIn Error:", error);
+      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.send).toHaveBeenCalledWith({ success: false, message: "Unauthorized: Invalid or missing token" });
       expect(next).not.toHaveBeenCalled();
       consoleLogSpy.mockRestore();
     });

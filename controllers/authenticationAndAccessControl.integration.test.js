@@ -440,7 +440,7 @@ describe("INT: New and Returning Users Can Register, Sign In, and Access the Rig
         user: undefined,
       };
 
-      const res = {};
+      const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
       const next = jest.fn();
 
       // Act
@@ -449,6 +449,7 @@ describe("INT: New and Returning Users Can Register, Sign In, and Access the Rig
       // Assert
       // Verify next was not called (access denied)
       expect(next).not.toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(401);
     });
 
     it("should grant admin route access to admin user", async () => {

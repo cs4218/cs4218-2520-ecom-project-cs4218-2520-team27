@@ -268,6 +268,8 @@ To begin unit testing with Jest in your project, follow these steps:
 
 ### 4. Kim Hofmann, A0337805Y
 
+### Milestone 1
+
 #### Protected Routes
 - context/auth.js
 - helpers/authHelper.js
@@ -278,8 +280,22 @@ To begin unit testing with Jest in your project, follow these steps:
 - pages/ProductDetails.js
 - models/productModel.js
 
+### Milestone 2
 
-### Milestone 1
+#### Integration Testing
+- Test file: `controllers/productCheckout.integration.test.js`
+  - Modules/files included:
+    - `controllers/productController.js` (`getProductController`, `getSingleProductController`, `braintreeTokenController`, `brainTreePaymentController`, `realtedProductController`)
+    - `middlewares/authMiddleware.js` (`requireSignIn`)
+    - `models/productModel.js`
+    - `models/orderModel.js`
+
+#### UI End-to-End Testing
+- Test file: `tests/ui/checkoutAndOrderSuccess.e2e.spec.js`
+  - Modules/files included:
+    - User Story: Checkout & Payment Success
+    - Tools: `@playwright/test`
+
 
 ## MS1 CI URL
 

@@ -11,7 +11,8 @@ export const requireSignIn = async (req, res, next) => {
         req.user = decode;
         next();
     } catch (error) {
-        console.log(error);
+        console.log("requireSignIn Error:", error);
+        return res.status(401).send({ success: false, message: "Unauthorized: Invalid or missing token" });
     }
 };
 

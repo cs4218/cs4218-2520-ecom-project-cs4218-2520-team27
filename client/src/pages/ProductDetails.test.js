@@ -43,7 +43,7 @@ describe('ProductDetails Component', () => {
   ];
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
   it('should render product details page with layout', () => {
@@ -291,6 +291,7 @@ describe('ProductDetails Component', () => {
     );
     await waitFor(() => {
       expect(axios.get).toHaveBeenCalledTimes(2);
+      expect(screen.getByText('ADD TO CART')).toBeInTheDocument();
     });
   });
 
@@ -395,18 +396,23 @@ describe('ProductDetails Component', () => {
         description: longDescription
       }
     ];
-    
-    axios.get
-      .mockResolvedValueOnce({
+
+    axios.get.mockImplementation((url) => {
+      if (url.includes('/api/v1/product/related-product/')) {
+        return Promise.resolve({
+          data: {
+            products: relatedWithLongDesc
+          }
+        });
+      }
+
+      return Promise.resolve({
         data: {
           product: mockProductData
         }
-      })
-      .mockResolvedValueOnce({
-        data: {
-          products: relatedWithLongDesc
-        }
       });
+    });
+
     render(
       <MemoryRouter initialEntries={['/product/test-product']}>
         <Routes>
@@ -414,8 +420,19 @@ describe('ProductDetails Component', () => {
         </Routes>
       </MemoryRouter>
     );
+
+    const expectedTruncatedDescription = `${longDescription.substring(0, 60)}...`;
+
     await waitFor(() => {
-      expect(axios.get).toHaveBeenCalledTimes(2);
+      expect(axios.get).toHaveBeenCalled();
+      const truncatedElem = screen.getByText((_, node) => {
+        const normalized = node?.textContent?.replace(/\s+/g, ' ').trim();
+        return normalized === expectedTruncatedDescription;
+      });
+      expect(truncatedElem).toBeInTheDocument();
+      expect(
+        screen.queryByText((_, node) => node?.textContent?.includes(longDescription))
+      ).not.toBeInTheDocument();
     });
   });
 });
