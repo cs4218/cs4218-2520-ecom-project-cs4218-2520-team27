@@ -276,6 +276,16 @@ To begin unit testing with Jest in your project, follow these steps:
 #### Order
 - controllers/orderFulfillment.integration.test.js
 
+### Milestone 3
+#### Non-Functional Testing (Stress Testing)
+- Test file: `tests/nonfunctional/k6-stress-busy-periods.js`
+- Tests conducted:
+   - Busy-period storefront stress checks using staged ramping VUs (up to 140 VUs) against home page, product list, and search endpoints
+   - Login and account-access stress checks using `/api/v1/auth/login` and `/api/v1/auth/user-auth` under high concurrency
+   - Cart integrity stress checks by validating cart item slug/price consistency with `/api/v1/product/get-product/:slug`
+   - Order placement stress checks using `/api/v1/product/braintree/payment`, with controlled order frequency to avoid rapid stock depletion
+
+
 ### 4. Kim Hofmann, A0337805Y
 
 ### Milestone 1
