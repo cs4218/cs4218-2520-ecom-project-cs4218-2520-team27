@@ -230,6 +230,16 @@ To begin unit testing with Jest in your project, follow these steps:
     - Unauthenticated user block/redirect for protected routes
     - Invalid login feedback verification
 
+### Milestone 3
+
+#### Non-Functional Testing (Load Testing)
+- Test file: `tests/nonfunctional/k6-load-shopping-flow.js`
+- Tests conducted:
+   - Home page, product page, and cart/checkout page response time checks against 2.5s targets
+   - Search responsiveness checks using `/api/v1/product/search/:keyword`
+   - Add-to-cart responsiveness probe using product details retrieval
+   - Checkout flow responsiveness using Braintree token endpoint, with optional payment request when a nonce is provided
+
 ### 3. Lai Xue Le Shaun, A0252643H
 
 ### Milestone 1
@@ -295,7 +305,6 @@ To begin unit testing with Jest in your project, follow these steps:
   - Modules/files included:
     - User Story: Checkout & Payment Success
     - Tools: `@playwright/test`
-
 
 ## MS1 CI URL
 

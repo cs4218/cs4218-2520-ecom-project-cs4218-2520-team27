@@ -17,7 +17,9 @@
     "test:ui:headed": "playwright test --headed",
     "test:ui:runner": "playwright test --ui",
     "test:ui:codegen": "playwright codegen http://localhost:3000",
-    "test:ui:codegen:save": "playwright codegen http://localhost:3000 -o tests/ui/codegenFlow.spec.js"
+    "test:ui:codegen:save": "playwright codegen http://localhost:3000 -o tests/ui/codegenFlow.spec.js",
+    "test:nft:load": "k6 run tests/nonfunctional/k6-load-shopping-flow.js",
+    "test:nft:load:docker": "docker run --rm -i -v \"%cd%:/work\" -w /work -e FRONTEND_BASE_URL=http://host.docker.internal:3000 -e API_BASE_URL=http://host.docker.internal:6060 grafana/k6 run tests/nonfunctional/k6-load-shopping-flow.js"
   },
   "keywords": [],
   "author": "RP",
