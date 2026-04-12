@@ -306,6 +306,16 @@ To begin unit testing with Jest in your project, follow these steps:
     - User Story: Checkout & Payment Success
     - Tools: `@playwright/test`
 
+### Milestone 3
+
+#### Non-Functional Testing (Spike Testing)
+- Test file: `tests/nonfunctional/k6-spike-testing.js`
+   - Tests conducted:
+      - Spike profile with rapid traffic ramp-up, sustained peak load, and recovery ramp-down
+      - Frontend home page availability checks during sudden traffic surges
+      - Product listing and search endpoint response-time and reliability checks under spike conditions
+      - Checkout token endpoint responsiveness checks during spike load
+
 ## MS1 CI URL
 
 https://github.com/cs4218/cs4218-2520-ecom-project-cs4218-2520-team27/actions/runs/22291171577
